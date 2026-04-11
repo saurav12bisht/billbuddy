@@ -1,0 +1,56 @@
+# Built objects and native libraries
+bin/
+gen/
+obj/
+lib/
+
+# Android Studio / IntelliJ IDEA
+.idea/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+*.iml
+*.iws
+*.ipr
+out/
+
+# Gradle
+.gradle/
+build/
+app/build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+
+# Log files
+*.log
+
+# Android / Device
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Mac files
+.DS_Store
+
+# Local configuration
+local.properties
+google-services.json
+
+# Keystores
+*.jks
+*.keystore
+release.jks
+
+# Backup files
+*.bak
+*.swp
+*~
+
+# Crashlytics
+com_crashlytics_export_strings.xml
