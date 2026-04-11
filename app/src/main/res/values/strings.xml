@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Paydrift</string>
+    <string name="app_name">BillBuddy</string>
     <string name="tagline">Professional Expense Tracking</string>
-    <string name="nav_trans">Trans.</string>
+    <string name="nav_trans">Transaction</string>
     <string name="nav_stats">Stats</string>
     <string name="nav_accounts">Accounts</string>
-    <string name="nav_more">More</string>
+    <string name="nav_more">Setting</string>
 
     <!-- Transactions Screen -->
     <string name="income">Income</string>

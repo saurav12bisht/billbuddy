@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/transactionsFragment"
-        android:icon="@drawable/ic_summary"
+        android:icon="@drawable/wallet_ic"
         android:title="@string/nav_trans" />
     <item
         android:id="@+id/statsFragment"
