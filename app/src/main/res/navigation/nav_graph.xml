@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.android.billreminder.ui.splash.SplashFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_splash">
+        <action
+            android:id="@+id/action_splash_to_onboarding"
+            app:destination="@id/onboardingFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_splash_to_pin_lock"
+            app:destination="@id/pinLockFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left" />
+        <action
+            android:id="@+id/action_splash_to_home"
+            app:destination="@id/transactionsFragment"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/onboardingFragment"
+        android:name="com.android.billreminder.ui.onboarding.OnboardingFragment"
+        android:label="Onboarding"
+        tools:layout="@layout/fragment_onboarding">
+        <action
+            android:id="@+id/action_onboarding_to_home"
+            app:destination="@id/transactionsFragment"
+            app:popUpTo="@id/onboardingFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/pinLockFragment"
+        android:name="com.android.billreminder.ui.settings.PinLockFragment"
+        android:label="PIN Lock"
+        tools:layout="@layout/fragment_pin_lock">
+        <action
+            android:id="@+id/action_pin_lock_to_home"
+            app:destination="@id/transactionsFragment"
+            app:popUpTo="@id/pinLockFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <!-- NEW EXPENSE MODULE -->
+    <fragment
+        android:id="@+id/transactionsFragment"
+        android:name="com.android.billreminder.ui.transactions.TransactionsFragment"
+        android:label="@string/nav_trans"
+        tools:layout="@layout/fragment_transactions">
+        <action
+            android:id="@+id/action_transactions_to_add"
+            app:destination="@id/addTransactionBottomSheet" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/statsFragment"
+        android:name="com.android.billreminder.ui.stats.StatsFragment"
+        android:label="@string/nav_stats"
+        tools:layout="@layout/fragment_stats" />
+
+    <fragment
+        android:id="@+id/accountsFragment"
+        android:name="com.android.billreminder.ui.accounts.AccountsFragment"
+        android:label="@string/nav_accounts"
+        tools:layout="@layout/fragment_accounts" />
+
+    <dialog
+        android:id="@+id/addTransactionBottomSheet"
+        android:name="com.android.billreminder.ui.transactionform.AddTransactionBottomSheet"
+        android:label="Add Transaction"
+        tools:layout="@layout/layout_add_transaction" />
+
+    <!-- LEGACY/EXISTING BILLS -->
+    <fragment
+        android:id="@+id/billListFragment"
+        android:name="com.android.billreminder.ui.bills.BillListFragment"
+        android:label="@string/nav_home"
+        tools:layout="@layout/fragment_bill_list" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.android.billreminder.ui.settings.SettingsFragment"
+        android:label="@string/settings"
+        tools:layout="@layout/fragment_settings" />
+
+</navigation>

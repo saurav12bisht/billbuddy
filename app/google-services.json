@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "67989701335",
+    "project_id": "vyapaar-hisaaab",
+    "storage_bucket": "vyapaar-hisaaab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:67989701335:android:cf41ba0912c7e1ba4f6692",
+        "android_client_info": {
+          "package_name": "com.android.billreminder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyVJQfGT_Rc5rMSyyxxGKMZeeWazlZXUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

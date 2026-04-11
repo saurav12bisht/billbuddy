@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvPinTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_lock"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="48dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnBiometric"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:contentDescription="Use biometric"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvPinTitle"
+        app:srcCompat="@android:drawable/ic_lock_lock"
+        app:tint="@color/white"
+        app:backgroundTint="@color/primary_variant" />
+
+    <LinearLayout
+        android:id="@+id/pinDots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvPinTitle"
+        android:layout_marginTop="32dp">
+        <View android:id="@+id/dot1" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="16dp" android:background="@drawable/pin_dot_empty" />
+        <View android:id="@+id/dot2" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="16dp" android:background="@drawable/pin_dot_empty" />
+        <View android:id="@+id/dot3" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginEnd="16dp" android:background="@drawable/pin_dot_empty" />
+        <View android:id="@+id/dot4" android:layout_width="24dp" android:layout_height="24dp" android:background="@drawable/pin_dot_empty" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvWrongPin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wrong_pin"
+        android:textColor="@color/accent_red"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/pinDots"
+        android:layout_marginTop="8dp" />
+
+    <LinearLayout
+        android:id="@+id/numpad"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/btnBackspace"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvWrongPin"
+        android:layout_marginTop="48dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn1" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="1" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn2" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="2" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn3" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="3" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn4" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="4" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn5" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="5" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn6" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="6" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn7" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="7" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn8" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="8" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn9" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="9" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/btn0" android:layout_width="0dp" android:layout_height="72dp" android:layout_weight="1" android:layout_margin="4dp" android:text="0" style="@style/Widget.Material3.Button.OutlinedButton" android:textColor="@color/white" app:strokeColor="@color/white" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnBackspace"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="âŒ«"
+        android:textSize="24sp"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/btnForgotPin"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/btnForgotPin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/forgot_pin"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

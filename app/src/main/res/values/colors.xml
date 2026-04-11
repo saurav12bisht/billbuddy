@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paydrift Professional Color System -->
+    <color name="expense_red">#E85D4A</color>
+    <color name="income_blue">#3498DB</color>
+    <color name="text_primary">#222222</color>
+    <color name="text_secondary">#888888</color>
+    <color name="text_hint">#BBBBBB</color>
+    <color name="divider">#F0F0F0</color>
+    <color name="bg_day_header">#F8F8F8</color>
+    <color name="bg_screen">#FFFFFF</color>
+
+    <!-- Category Backgrounds -->
+    <color name="cat_orange_bg">#FFF3E0</color>
+    <color name="cat_blue_bg">#E3F2FD</color>
+    <color name="cat_purple_bg">#F3E5F5</color>
+    <color name="cat_green_bg">#E8F5E9</color>
+    <color name="cat_red_bg">#FFEBEE</color>
+    <color name="cat_teal_bg">#E0F7FA</color>
+    <color name="cat_amber_bg">#FFF8E1</color>
+    <color name="cat_default_bg">#F1EFE8</color>
+
+    <!-- Day Badges -->
+    <color name="day_badge_sat">#E85D4A</color>
+    <color name="day_badge_sun">#E85D4A</color>
+    <color name="day_badge_weekday">#607D8B</color>
+
+    <!-- UI Helpers -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#222222</color>
+    <color name="transparent">#00000000</color>
+    <color name="white_70">#B3FFFFFF</color>
+    
+    <!-- Legacy/Compatibility Definitions (Restored to fix build) -->
+    <color name="white_15">#26FFFFFF</color>
+    <color name="white_10">#1AFFFFFF</color>
+    <color name="white_08">#14FFFFFF</color>
+    <color name="white_06">#0FFFFFFF</color>
+    
+    <color name="primary">#E85D4A</color>
+    <color name="primary_blue">#E85D4A</color>
+    <color name="nav_background">#0B1E3D</color>
+    <color name="paid_success">#3498DB</color>
+    <color name="surface_variant">#F0F0F0</color>
+    <color name="splash_start">#E85D4A</color>
+    <color name="splash_end">#FF867A</color>
+    <color name="accent_red">#E85D4A</color>
+    <color name="dark_surface_card">#2C2C2C</color>
+    <color name="primary_variant">#C94C3C</color>
+    
+    <!-- Design Aliases -->
+    <color name="primary_dark_background">#FFFFFF</color>
+    <color name="card_surface">#FFFFFF</color>
+    <color name="surface2">#F8F8F8</color>
+    <color name="background">#FFFFFF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="gradient_start">#E85D4A</color>
+    <color name="gradient_end">#FF867A</color>
+    <color name="bill_swipe_delete">#E85D4A</color>
+    <color name="urgent_error">#E85D4A</color>
+</resources>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.VyapaarHisaab" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/expense_red</item>
+        <item name="colorPrimaryDark">@color/bg_screen</item>
+        <item name="colorSecondary">@color/income_blue</item>
+        <item name="colorAccent">@color/expense_red</item>
+        <item name="colorSurface">@color/bg_screen</item>
+        <item name="colorSurfaceVariant">@color/bg_day_header</item>
+        <item name="android:windowBackground">@color/bg_screen</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/bg_screen</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Paydrift.Medium</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+    </style>
+
+    <style name="ShapeAppearance.Paydrift.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+
+    <style name="Widget.Paydrift.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/bg_screen</item>
+        <item name="itemIconTint">@color/sel_bottom_nav</item>
+        <item name="itemTextColor">@color/sel_bottom_nav</item>
+        <item name="labelVisibilityMode">labeled</item>
+    </style>
+
+    <style name="TextAppearance.Paydrift.NavLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">10sp</item>
+        <item name="fontFamily">@font/poppins_regular</item>
+    </style>
+
+    <style name="PaydriftTabItem">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingHorizontal">14dp</item>
+        <item name="android:fontFamily">@font/poppins_regular</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_hint</item>
+        <item name="android:layout_marginEnd">4dp</item>
+    </style>
+
+    <style name="Widget.Paydrift.Button" parent="Widget.Material3.Button">
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Paydrift.Medium</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="fontFamily">@font/poppins_semibold</item>
+    </style>
+
+    <!-- Legacy support styles to avoid breaks -->
+    <style name="Widget.BillBuddy.Button" parent="Widget.Paydrift.Button" />
+    <style name="Widget.BillBuddy.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/bg_day_header</item>
+        <item name="boxStrokeColor">@color/expense_red</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Paydrift.Medium</item>
+    </style>
+    <style name="Widget.BillBuddy.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="Widget.BillBuddy.ToolbarContainer" parent="" />
+    <style name="Widget.BillBuddy.TopAppBar" parent="Widget.Material3.Toolbar" />
+    <style name="TextAppearance.BillBuddy.BottomNav" parent="" />
+    <style name="Widget.Vyapaar.BottomNavigation" parent="Widget.Material3.BottomNavigationView" />
+    <style name="Widget.Vyapaar.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@color/bg_screen</item>
+        <item name="titleTextColor">@color/text_primary</item>
+    </style>
+    <style name="ShapeAppearance.Vyapaar.Medium" parent="ShapeAppearance.Paydrift.Medium" />
+    <style name="Widget.BillBuddy.GradientButton" parent="Widget.Paydrift.Button" />
+</resources>

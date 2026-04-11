@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="bill_categories">
+        <item>Rent</item>
+        <item>Utilities</item>
+        <item>Credit Card</item>
+        <item>Insurance</item>
+        <item>Subscriptions</item>
+    </string-array>
+
+    <string-array name="bill_repeat_types">
+        <item>Monthly</item>
+        <item>Weekly</item>
+        <item>Yearly</item>
+    </string-array>
+</resources>

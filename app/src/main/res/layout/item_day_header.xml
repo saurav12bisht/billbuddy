@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/bg_day_header"
+    android:paddingHorizontal="14dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="6dp">
+
+    <TextView
+        android:id="@+id/tvDayNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_bold"
+        android:textColor="@color/text_primary"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="11" />
+
+    <TextView
+        android:id="@+id/tvDayBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:background="@drawable/bg_day_badge"
+        android:fontFamily="@font/poppins_bold"
+        android:paddingHorizontal="5dp"
+        android:paddingVertical="1dp"
+        android:textColor="@color/white"
+        android:textSize="8sp"
+        android:textAllCaps="true"
+        app:layout_constraintBottom_toBottomOf="@+id/tvDayNumber"
+        app:layout_constraintStart_toEndOf="@+id/tvDayNumber"
+        app:layout_constraintTop_toTopOf="@+id/tvDayNumber"
+        tools:text="SAT" />
+
+    <TextView
+        android:id="@+id/tvDateLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:fontFamily="@font/poppins_regular"
+        android:textColor="@color/text_hint"
+        android:textSize="9sp"
+        app:layout_constraintBottom_toBottomOf="@+id/tvDayBadge"
+        app:layout_constraintEnd_toStartOf="@+id/tvDailyIncome"
+        app:layout_constraintStart_toEndOf="@+id/tvDayBadge"
+        app:layout_constraintTop_toTopOf="@+id/tvDayBadge"
+        tools:text="04.2026" />
+
+    <TextView
+        android:id="@+id/tvDailyIncome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/income_blue"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tvDailyExpense"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="$ 0.00" />
+
+    <TextView
+        android:id="@+id/tvDailyExpense"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/expense_red"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="$ 45.50" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

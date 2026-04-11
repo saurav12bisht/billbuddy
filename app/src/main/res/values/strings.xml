@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Paydrift</string>
+    <string name="tagline">Professional Expense Tracking</string>
+    <string name="nav_trans">Trans.</string>
+    <string name="nav_stats">Stats</string>
+    <string name="nav_accounts">Accounts</string>
+    <string name="nav_more">More</string>
+
+    <!-- Transactions Screen -->
+    <string name="income">Income</string>
+    <string name="expenses">Expenses</string>
+    <string name="total">Total</string>
+    <string name="tab_daily">Daily</string>
+    <string name="tab_calendar">Calendar</string>
+    <string name="tab_monthly">Monthly</string>
+    <string name="tab_total">Total</string>
+    <string name="tab_note">Note</string>
+    <string name="no_transactions_title">No transactions yet</string>
+    <string name="add_transaction_hint">Tap + to add your first transaction</string>
+
+    <!-- Add Transaction -->
+    <string name="type_expense">EXPENSE</string>
+    <string name="type_income">INCOME</string>
+    <string name="hint_amount">0.00</string>
+    <string name="hint_note">Note (optional)</string>
+    <string name="new_category">+ New</string>
+    <string name="save_expense">Save Expense</string>
+    <string name="save_income">Save Income</string>
+    <string name="accounts_label">Accounts</string>
+
+    <!-- Stats -->
+    <string name="category_breakdown">Category Breakdown</string>
+
+    <!-- Accounts -->
+    <string name="total_balance">Total Balance</string>
+    <string name="num_accounts">%1$d accounts</string>
+    <string name="num_transactions">%1$d transactions</string>
+
+    <!-- Settings & Common -->
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="required_field">Required</string>
+    <string name="invalid_amount">Invalid amount</string>
+    <string name="date">Date</string>
+    <string name="amount">Amount</string>
+    <string name="category">Category</string>
+    <string name="undo">Undo</string>
+    <string name="edit">Edit</string>
+    <string name="search">Search</string>
+    <string name="filter">Filter</string>
+
+    <!-- Complete Legacy Resource Restoration -->
+    <string name="add_customer">Add Customer</string>
+    <string name="udhaar_diya">Credit Given</string>
+    <string name="paisa_mila">Payment Received</string>
+    <string name="total_outstanding">Total Outstanding</string>
+    <string name="total_received">Total Received</string>
+    <string name="net_balance">Net Balance</string>
+    <string name="customers">Customers</string>
+    <string name="overdue">Overdue</string>
+    <string name="due_today">Due Today</string>
+    <string name="mark_settled">Mark Settled</string>
+    <string name="send_reminder">Send Reminder</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="due_date">Due Date</string>
+    <string name="note">Note</string>
+    <string name="language">Language</string>
+    <string name="app_lock">App Lock (PIN)</string>
+    <string name="backup_data">Backup Data</string>
+    <string name="share_app">Share App</string>
+    <string name="they_owe">They Owe Me</string>
+    <string name="i_owe">I Owe Them</string>
+    <string name="whatsapp_msg_template">%1$s, your %2$s balance is due. Please pay when possible. - Paydrift</string>
+    <string name="nav_home">Bills</string>
+    <string name="nav_customers">Customers</string>
+    <string name="nav_summary">Dashboard</string>
+    <string name="get_started">Get Started</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="wrong_pin">Wrong PIN</string>
+    <string name="exit_confirm">Exit app?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="transaction_saved">Transaction Saved</string>
+    <string name="no_customers_yet">No customers yet. Add your first customer.</string>
+    <string name="made_in_india">Made with ❤️ in India</string>
+    <string name="payment_due">Payment Due</string>
+    <string name="outstanding">Outstanding</string>
+    <string name="add_bill">Add New Bill</string>
+    <string name="edit_bill">Edit Bill</string>
+    <string name="bill_name">Bill Name</string>
+    <string name="bill_amount">Bill Amount</string>
+    <string name="history">History</string>
+    <string name="settings">Settings</string>
+    <string name="next_7_days">Next 7 Days</string>
+    <string name="smart_reminders_title">Smart Reminders</string>
+    <string name="smart_reminders_body">Never miss a payment again</string>
+    <string name="paid">Paid</string>
+    <string name="pending">Pending</string>
+    <string name="about">About</string>
+    <string name="welcome_title">Welcome to Paydrift</string>
+    <string name="welcome_body">Manage your expenses and bills easily</string>
+    <string name="set_pin">Set PIN</string>
+    <string name="confirm_pin">Confirm PIN</string>
+    <string name="paid_amount_label">Paid Amount</string>
+    <string name="remaining_amount_label">Remaining </string>
+    <string name="monthly_bills_total">Monthly Total</string>
+    <string name="mark_paid">Mark Paid</string>
+    <string name="save_bill">Save Bill</string>
+    <string name="forgot_pin">Forgot PIN?</string>
+    <string name="search_customers">Search Customers...</string>
+    <string name="repeat_type">Repeat Type</string>
+    <string name="settings_export_pdf">Export as PDF</string>
+    <string name="toolbar_dashboard_subtitle">Monthly Summary</string>
+    <string name="toolbar_history_subtitle">Transaction Logs</string>
+    <string name="toolbar_settings_subtitle">Preferences</string>
+    <string name="watch_ad_to_unlock">Watch ad to unlock</string>
+    <string name="add">Add</string>
+    <string name="dashboard_empty_state">No bill data available for this month</string>
+    <string name="cancel_changes">Cancel Changes</string>
+    <string name="empty_bills_message">You have no bills. Tap + to add one!</string>
+    
+    <!-- Strings missed in previous passes -->
+    <string name="bill_deleted">Bill deleted</string>
+    <string name="bill_saved">Bill saved</string>
+    <string name="bill_marked_unpaid">Bill marked as unpaid</string>
+    <string name="bill_marked_paid">Bill marked as paid</string>
+    <string name="bill_due_soon_title">Bill Due Soon</string>
+    <string name="bill_due_soon_message">%1$s is due on %2$s</string>
+    <string name="bill_reminder_channel_name">Bill Reminders</string>
+    <string name="upcoming_bills">Upcoming Bills</string>
+    <string name="select_due_date">Select Due Date</string>
+    <string name="progress_percent">%d%%</string>
+    <string name="appbar_scrolling_view_behavior">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
+</resources>
