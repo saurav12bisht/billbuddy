@@ -25,11 +25,6 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
     private lateinit var upcomingAdapter: BillListAdapter
 
     override fun onInit() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.rootView) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, bars.bottom)
-            insets
-        }
         binding.toolbar.setOnMenuItemClickListener {
             if (it.itemId == R.id.action_settings) {
                 findNavController().navigate(R.id.settingsFragment)

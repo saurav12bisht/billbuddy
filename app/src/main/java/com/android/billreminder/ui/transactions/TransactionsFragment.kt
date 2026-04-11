@@ -26,6 +26,7 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
     private lateinit var adapter: TransactionsAdapter
 
     override fun onInit() {
+        applyTopInset(binding.clToolbar)
         setupRecyclerView()
         setupListeners()
         observeState()

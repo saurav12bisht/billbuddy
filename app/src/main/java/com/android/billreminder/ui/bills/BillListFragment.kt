@@ -45,11 +45,6 @@ class BillListFragment : BaseFragment<FragmentBillListBinding>(FragmentBillListB
             android.animation.PropertyValuesHolder.ofFloat("scaleY", 1f, 1.12f, 1f)
         ).apply { duration = 600; repeatCount = 2; start() }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, 0)
-            insets
-        }
         setupToolbar()
         setupList()
         bindState()

@@ -2,6 +2,8 @@ package com.android.billreminder.ui.common
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.viewbinding.ViewBinding
 
 abstract class BaseFragment<B : ViewBinding>(
@@ -26,6 +28,28 @@ abstract class BaseFragment<B : ViewBinding>(
     }
 
     protected abstract fun onInit()
+
+    /**
+     * Applies top padding to a view based on system bar insets.
+     */
+    protected fun applyTopInset(view: android.view.View) {
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, v.paddingBottom)
+            insets
+        }
+    }
+
+    /**
+     * Applies bottom padding to a view based on system bar insets.
+     */
+    protected fun applyBottomInset(view: android.view.View) {
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, systemBars.bottom)
+            insets
+        }
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
