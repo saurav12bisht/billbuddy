@@ -9,22 +9,11 @@
     <!-- TOP APP BAR -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/clToolbar"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="56dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="4dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/cancel"
-            android:src="@drawable/ic_back"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/text_hint" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -33,7 +22,6 @@
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/llActions"
-            app:layout_constraintStart_toEndOf="@+id/btnBack"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
@@ -73,76 +61,16 @@
             android:paddingEnd="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageButton
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_summary"
-                app:tint="@color/text_hint" />
-
-            <ImageButton
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_summary"
-                app:tint="@color/text_hint" />
-
-            <ImageButton
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_summary"
-                app:tint="@color/text_hint" />
-        </LinearLayout>
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- CUSTOM TAB LAYOUT -->
-    <HorizontalScrollView
-        android:id="@+id/hsvTabs"
-        android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@+id/clToolbar">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:paddingHorizontal="14dp">
-
-            <TextView
-                android:id="@+id/tabDaily"
-                style="@style/PaydriftTabItem"
-                android:text="@string/tab_daily"
-                 />
-
-            <TextView
-                style="@style/PaydriftTabItem"
-                android:text="@string/tab_calendar" />
-
-            <TextView
-                style="@style/PaydriftTabItem"
-                android:text="@string/tab_monthly" />
-
-            <TextView
-                style="@style/PaydriftTabItem"
-                android:text="@string/tab_total" />
-
-            <TextView
-                style="@style/PaydriftTabItem"
-                android:layout_marginEnd="0dp"
-                android:text="@string/tab_note" />
-        </LinearLayout>
-    </HorizontalScrollView>
 
     <View
         android:id="@+id/vTabDivider"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:background="@color/divider"
-        app:layout_constraintTop_toBottomOf="@+id/hsvTabs" />
+        app:layout_constraintTop_toBottomOf="@+id/clToolbar" />
 
     <!-- SUMMARY HEADER -->
     <LinearLayout

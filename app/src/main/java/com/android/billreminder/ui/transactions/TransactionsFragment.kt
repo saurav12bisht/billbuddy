@@ -68,8 +68,7 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
     private fun setupListeners() {
         binding.btnPrevMonth.setOnClickListener { viewModel.previousMonth() }
         binding.btnNextMonth.setOnClickListener { viewModel.nextMonth() }
-        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-        
+
         binding.fabAdd.setOnClickListener {
             findNavController().navigate(R.id.addTransactionBottomSheet)
         }
