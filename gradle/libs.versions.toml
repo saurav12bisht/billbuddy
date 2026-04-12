@@ -4,6 +4,7 @@ kotlin = "2.1.0"
 ksp = "2.1.0-1.0.29"
 coreKtx = "1.13.1"
 appcompat = "1.7.0"
+lottie = "6.7.1"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 coordinatorlayout = "1.2.0"
@@ -19,6 +20,8 @@ hilt = "2.54"
 hiltWork = "1.2.0"
 coroutines = "1.8.0"
 datastore = "1.1.1"
+shimmer = "0.5.0"
+shortcutbadger = "1.1.22"
 work = "2.9.0"
 securityCrypto = "1.1.0-alpha06"
 biometric = "1.1.0"
@@ -40,6 +43,7 @@ firebaseAnalytics = "23.0.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
@@ -59,6 +63,8 @@ hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWo
 hilt-compiler-work = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+shimmer = { module = "com.facebook.shimmer:shimmer", version.ref = "shimmer" }
+shortcutbadger = { module = "me.leolin:ShortcutBadger", version.ref = "shortcutbadger" }
 work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }

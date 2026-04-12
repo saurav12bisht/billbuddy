@@ -88,9 +88,9 @@ dependencies {
     implementation(libs.viewpager2)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.mpandroidchart)
-    implementation("com.airbnb.android:lottie:6.3.0")
-    implementation("com.facebook.shimmer:shimmer:0.5.0")
-    implementation("me.leolin:ShortcutBadger:1.1.22@aar")
+    implementation(libs.lottie)
+    implementation(libs.shimmer)
+    implementation(libs.shortcutbadger)
 
     // Testing
     testImplementation(libs.junit)
