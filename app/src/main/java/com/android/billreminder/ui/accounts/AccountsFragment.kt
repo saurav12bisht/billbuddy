@@ -1,10 +1,11 @@
 package com.android.billreminder.ui.accounts
 
 import android.graphics.Color
+import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,14 +15,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.material.tabs.TabLayoutMediator
 import com.android.billreminder.R
-import com.android.billreminder.data.local.entity.AccountEntity
 import com.android.billreminder.databinding.FragmentAccountsBinding
-import com.android.billreminder.databinding.FragmentWalletTabBinding
 import com.android.billreminder.databinding.ItemAccountBinding
 import com.android.billreminder.databinding.ItemWalletCreditCardBinding
+import com.android.billreminder.databinding.ItemWalletGroupHeaderBinding
 import com.android.billreminder.ui.common.BaseFragment
 import com.android.billreminder.ui.common.util.CurrencyFormatter
 import com.android.billreminder.ui.creditcards.CreditCardUiModel
@@ -34,198 +32,165 @@ import java.util.Locale
 class AccountsFragment : BaseFragment<FragmentAccountsBinding>(FragmentAccountsBinding::inflate) {
 
     private val viewModel: AccountsViewModel by viewModels()
+    private lateinit var adapter: WalletAdapter
 
     override fun onInit() {
-        setupTabs()
+        setupAdapter()
         observeState()
+        setupFab()
     }
 
-    private fun setupTabs() {
-        val adapter = WalletPagerAdapter(this)
-        binding.viewPager.adapter = adapter
-        binding.viewPager.isUserInputEnabled = true
-
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
-            tab.text = when (position) {
-                0 -> "🏦  Accounts"
-                1 -> "💳  Credit Cards"
-                else -> ""
-            }
-        }.attach()
-
-        // Update FAB content/action based on current tab
-        binding.viewPager.registerOnPageChangeCallback(object :
-            androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                when (position) {
-                    0 -> {
-                        binding.fabAdd.text = "Add Account"
-                        binding.fabAdd.setOnClickListener { 
-                            AddAccountBottomSheet.newInstance().show(childFragmentManager, AddAccountBottomSheet.TAG)
-                        }
-                    }
-                    1 -> {
-                        binding.fabAdd.text = "Add Card"
-                        binding.fabAdd.setOnClickListener {
-                            findNavController().navigate(
-                                R.id.action_accounts_to_creditCardList
-                            )
-                        }
-                    }
+    private fun setupAdapter() {
+        adapter = WalletAdapter(
+            onHeaderClick = { viewModel.toggleGroup(it) },
+            onCardClick = { cardModel -> 
+                val bundle = android.os.Bundle().apply {
+                    putLong("cardId", cardModel.card.id)
                 }
+                findNavController().navigate(R.id.action_accounts_to_creditCardDetail, bundle)
             }
-        })
-        binding.fabAdd.text = "Add Account"
+        )
+        binding.rvWallet.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@AccountsFragment.adapter
+        }
+    }
+
+    private fun setupFab() {
+        binding.fabAdd.setOnClickListener {
+            // Simplified: Default to Add Account for now
+            AddAccountBottomSheet.newInstance().show(childFragmentManager, AddAccountBottomSheet.TAG)
+        }
     }
 
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.accounts.collect { accounts ->
-                    val total = accounts.sumOf { it.balanceCents }
-                    binding.tvTotalBalance.text = CurrencyFormatter.formatUsdCents(total)
-                    binding.tvNumAccounts.text = getString(R.string.num_accounts, accounts.size)
+                launch {
+                    viewModel.walletItems.collect { items ->
+                        adapter.submitList(items)
+                    }
+                }
+
+                launch {
+                    viewModel.totalBalance.collect { total ->
+                        binding.tvTotalBalance.text = CurrencyFormatter.formatUsdCents(total)
+                        val color = if (total >= 0) R.color.white else R.color.expense_red
+                        binding.tvTotalBalance.setTextColor(ContextCompat.getColor(requireContext(), color))
+                    }
+                }
+
+                launch {
+                    viewModel.walletItems.collect { items ->
+                        val accountsCount = items.filterIsInstance<WalletListItem.Account>().size
+                        binding.tvNumAccounts.text = getString(R.string.num_accounts, accountsCount)
+                    }
                 }
             }
         }
     }
-
-    // ── ViewPager2 Adapter ──────────────────────────────────────────────────
-
-    class WalletPagerAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-        override fun getItemCount() = 2
-        override fun createFragment(position: Int): Fragment = when (position) {
-            0 -> AccountsTabFragment()
-            1 -> CreditCardsTabFragment()
-            else -> AccountsTabFragment()
-        }
-    }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-//  Tab 1: Accounts
-// ──────────────────────────────────────────────────────────────────────────────
+// ── Unified Wallet Adapter ──────────────────────────────────────────────────
 
-@AndroidEntryPoint
-class AccountsTabFragment : Fragment(R.layout.fragment_wallet_tab) {
+class WalletAdapter(
+    private val onHeaderClick: (WalletGroupType) -> Unit,
+    private val onCardClick: (CreditCardUiModel) -> Unit
+) : ListAdapter<WalletListItem, RecyclerView.ViewHolder>(Diff) {
 
-    private val viewModel: AccountsViewModel by viewModels()
-    private lateinit var adapter: AccountsTabAdapter
+    companion object {
+        private const val TYPE_HEADER = 0
+        private const val TYPE_ACCOUNT = 1
+        private const val TYPE_CARD = 2
+    }
 
-    override fun onViewCreated(
-        view: android.view.View,
-        savedInstanceState: android.os.Bundle?
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentWalletTabBinding.bind(view)
-        adapter = AccountsTabAdapter()
-        binding.rvList.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvList.adapter = adapter
+    override fun getItemViewType(position: Int): Int = when (getItem(position)) {
+        is WalletListItem.Header -> TYPE_HEADER
+        is WalletListItem.Account -> TYPE_ACCOUNT
+        is WalletListItem.Card -> TYPE_CARD
+    }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.accounts.collect { adapter.submitList(it) }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            TYPE_HEADER -> HeaderVH(ItemWalletGroupHeaderBinding.inflate(inflater, parent, false))
+            TYPE_ACCOUNT -> AccountVH(ItemAccountBinding.inflate(inflater, parent, false))
+            TYPE_CARD -> CardVH(ItemWalletCreditCardBinding.inflate(inflater, parent, false))
+            else -> throw IllegalArgumentException("Invalid view type")
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val item = getItem(position)
+        when (holder) {
+            is HeaderVH -> holder.bind(item as WalletListItem.Header)
+            is AccountVH -> holder.bind((item as WalletListItem.Account).entity)
+            is CardVH -> holder.bind((item as WalletListItem.Card).uiModel)
+        }
+    }
+
+    inner class HeaderVH(private val b: ItemWalletGroupHeaderBinding) : RecyclerView.ViewHolder(b.root) {
+        fun bind(h: WalletListItem.Header) {
+            b.tvHeaderTitle.text = when (h.type) {
+                WalletGroupType.CASH -> "Cash"
+                WalletGroupType.BANKS -> "Bank Accounts"
+                WalletGroupType.CREDIT_CARDS -> "Credit Cards"
             }
+            b.tvHeaderTotal.text = CurrencyFormatter.formatUsdCents(h.amountCents)
+            
+            // Animation for the arrow
+            val rotation = if (h.isExpanded) 90f else -90f
+            b.ivArrow.animate()
+                .rotation(rotation)
+                .setDuration(300)
+                .setInterpolator(android.view.animation.OvershootInterpolator())
+                .start()
+            
+            b.root.setOnClickListener { onHeaderClick(h.type) }
         }
     }
-}
 
-class AccountsTabAdapter : ListAdapter<AccountEntity, AccountsTabAdapter.VH>(Diff) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
-        ItemAccountBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    )
-    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
-
-    class VH(private val b: ItemAccountBinding) : RecyclerView.ViewHolder(b.root) {
-        fun bind(a: AccountEntity) {
+    class AccountVH(private val b: ItemAccountBinding) : RecyclerView.ViewHolder(b.root) {
+        fun bind(a: com.android.billreminder.data.local.entity.AccountEntity) {
             b.tvAccountEmoji.text = a.iconEmoji
             b.vAccountIconBg.background.setTint(Color.parseColor(a.colorHex))
             b.tvAccountName.text = a.name
-            b.tvTransactionCount.text = b.root.context.getString(R.string.num_transactions, 0)
-            val color = if (a.balanceCents >= 0) R.color.income_blue else R.color.expense_red
-            b.tvBalance.setTextColor(androidx.core.content.ContextCompat.getColor(b.root.context, color))
             b.tvBalance.text = CurrencyFormatter.formatUsdCents(a.balanceCents)
+            
+            val color = if (a.balanceCents >= 0) R.color.text_primary else R.color.expense_red
+            b.tvBalance.setTextColor(ContextCompat.getColor(b.root.context, color))
+            
+            b.tvTransactionCount.visibility = View.GONE // Hide for cleaner unified look
         }
     }
 
-    object Diff : DiffUtil.ItemCallback<AccountEntity>() {
-        override fun areItemsTheSame(o: AccountEntity, n: AccountEntity) = o.id == n.id
-        override fun areContentsTheSame(o: AccountEntity, n: AccountEntity) = o == n
-    }
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
-//  Tab 2: Credit Cards
-// ──────────────────────────────────────────────────────────────────────────────
-
-@AndroidEntryPoint
-class CreditCardsTabFragment : Fragment(R.layout.fragment_wallet_tab) {
-
-    private val viewModel: WalletCreditCardsViewModel by viewModels()
-    private lateinit var adapter: WalletCardsAdapter
-
-    override fun onViewCreated(
-        view: android.view.View,
-        savedInstanceState: android.os.Bundle?
-    ) {
-        super.onViewCreated(view, savedInstanceState)
-        val binding = FragmentWalletTabBinding.bind(view)
-
-        adapter = WalletCardsAdapter { cardUiModel ->
-            // Navigate to card detail screen
-            val navController = try {
-                androidx.navigation.fragment.NavHostFragment.findNavController(this)
-            } catch (e: Exception) { return@WalletCardsAdapter }
-
-            navController.navigate(
-                R.id.action_accounts_to_creditCardDetail,
-                bundleOf("cardId" to cardUiModel.card.id)
-            )
-        }
-        binding.rvList.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvList.adapter = adapter
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.creditCards.collect { cards ->
-                    adapter.submitList(cards)
-                }
-            }
-        }
-    }
-}
-
-class WalletCardsAdapter(
-    private val onClick: (CreditCardUiModel) -> Unit
-) : ListAdapter<CreditCardUiModel, WalletCardsAdapter.VH>(Diff) {
-
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(
-        ItemWalletCreditCardBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    )
-    override fun onBindViewHolder(holder: VH, position: Int) = holder.bind(getItem(position))
-
-    inner class VH(private val b: ItemWalletCreditCardBinding) : RecyclerView.ViewHolder(b.root) {
+    inner class CardVH(private val b: ItemWalletCreditCardBinding) : RecyclerView.ViewHolder(b.root) {
+        private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+        
         fun bind(uiModel: CreditCardUiModel) {
             val card = uiModel.card
             b.tvWalletBankName.text = card.bankName.uppercase()
             b.tvWalletCardName.text = card.cardName
             b.tvWalletCardNumber.text = "•••• ${card.lastFourDigits}"
-            b.tvWalletCycleSpend.text = currencyFormat.format(uiModel.currentCycleSpendCents / 100.0)
             b.tvWalletOutstanding.text = currencyFormat.format(uiModel.outstandingAmountCents / 100.0)
-            b.tvWalletDueDay.text = formatOrdinal(card.dueDay)
-            b.root.setOnClickListener { onClick(uiModel) }
-        }
-
-        private fun formatOrdinal(d: Int) = "$d" + if (d in 11..13) "th" else when (d % 10) {
-            1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th"
+            
+            // Clean up: hide fields that are too detailed for the unified overview if necessary
+            // or keep them for 'Professional Look'
+            b.tvWalletCycleSpend.text = "Cycle Spend: " + currencyFormat.format(uiModel.currentCycleSpendCents / 100.0)
+            
+            b.root.setOnClickListener { onCardClick(uiModel) }
         }
     }
 
-    object Diff : DiffUtil.ItemCallback<CreditCardUiModel>() {
-        override fun areItemsTheSame(o: CreditCardUiModel, n: CreditCardUiModel) = o.card.id == n.card.id
-        override fun areContentsTheSame(o: CreditCardUiModel, n: CreditCardUiModel) = o == n
+    object Diff : DiffUtil.ItemCallback<WalletListItem>() {
+        override fun areItemsTheSame(o: WalletListItem, n: WalletListItem): Boolean {
+            return when {
+                o is WalletListItem.Header && n is WalletListItem.Header -> o.type == n.type
+                o is WalletListItem.Account && n is WalletListItem.Account -> o.entity.id == n.entity.id
+                o is WalletListItem.Card && n is WalletListItem.Card -> o.uiModel.card.id == n.uiModel.card.id
+                else -> false
+            }
+        }
+        override fun areContentsTheSame(o: WalletListItem, n: WalletListItem) = o == n
     }
 }

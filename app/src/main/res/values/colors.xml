@@ -60,4 +60,16 @@
     <color name="urgent_error">@color/expense_red</color>
     <color name="accent_purple">#7E57C2</color>
     <color name="error_red">#E53935</color>
+
+    <!-- UI/UX Overhaul Premium Tokens -->
+    <color name="surface_card">#FFFFFF</color>
+    <color name="surface_card_dark">#1E293B</color>
+    <color name="glass_white_20">#33FFFFFF</color>
+    <color name="glass_white_10">#1AFFFFFF</color>
+    <color name="hero_gradient_start">#6366F1</color>
+    <color name="hero_gradient_mid">#8B5CF6</color>
+    <color name="hero_gradient_end">#D946EF</color>
+    <color name="text_title_slate">#0F172A</color>
+    <color name="text_body_slate">#475569</color>
+    <color name="border_light">#E2E8F0</color>
 </resources>

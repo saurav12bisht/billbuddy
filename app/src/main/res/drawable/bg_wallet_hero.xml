@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:angle="135"
+                android:endColor="@color/hero_gradient_end"
+                android:startColor="@color/hero_gradient_start"
+                android:type="linear" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    
+    <!-- Subtle glow overlay -->
+    <item>
+        <shape>
+            <gradient
+                android:centerColor="@color/glass_white_10"
+                android:centerX="30%"
+                android:centerY="30%"
+                android:gradientRadius="400dp"
+                android:startColor="@color/glass_white_20"
+                android:type="radial" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+</layer-list>

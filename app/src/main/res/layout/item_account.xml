@@ -1,49 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="14dp"
+    android:layout_marginHorizontal="20dp"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="16dp"
     app:cardElevation="0dp"
-    app:cardBackgroundColor="@color/bg_screen">
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/border_light"
+    app:cardBackgroundColor="@color/surface_card">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:background="@drawable/bg_account_item_border">
+        android:padding="16dp">
 
-        <View
-            android:id="@+id/vAccountIconBg"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/dot_circle"
+        <FrameLayout
+            android:id="@+id/ivIconContainer"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tvAccountEmoji"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="@+id/vAccountIconBg"
-            app:layout_constraintEnd_toEndOf="@+id/vAccountIconBg"
-            app:layout_constraintStart_toStartOf="@+id/vAccountIconBg"
-            app:layout_constraintTop_toTopOf="@+id/vAccountIconBg"
-            tools:text="💵" />
+            <View
+                android:id="@+id/vAccountIconBg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.12"
+                android:background="@drawable/dot_circle" />
+
+            <TextView
+                android:id="@+id/tvAccountEmoji"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="22sp"
+                tools:text="💵" />
+        </FrameLayout>
 
         <LinearLayout
-            android:id="@+id/llAccInfo"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="16dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/tvBalance"
-            app:layout_constraintStart_toEndOf="@+id/vAccountIconBg"
+            app:layout_constraintStart_toEndOf="@+id/ivIconContainer"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
@@ -51,18 +56,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_semibold"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp"
-                tools:text="Cash" />
+                android:textColor="@color/text_title_slate"
+                android:textSize="15sp"
+                tools:text="HDFC Savings" />
 
             <TextView
                 android:id="@+id/tvTransactionCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
-                android:textColor="@color/text_hint"
-                android:textSize="11sp"
-                tools:text="12 transactions" />
+                android:text="Active Source"
+                android:textColor="@color/text_body_slate"
+                android:textSize="12sp"
+                tools:text="Active Source" />
         </LinearLayout>
 
         <TextView
@@ -70,11 +76,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_bold"
-            android:textColor="@color/income_blue"
-            android:textSize="16sp"
+            android:textColor="@color/text_title_slate"
+            android:textSize="17sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="$ 1,200.00" />
+            tools:text="₹ 45,000" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
