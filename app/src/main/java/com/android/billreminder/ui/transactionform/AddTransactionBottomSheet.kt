@@ -19,6 +19,8 @@ import com.android.billreminder.domain.model.CreditCard
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flatMapLatest
@@ -308,7 +310,21 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                 isCheckable = true
                 id = View.generateViewId()
                 isChecked = account.id == selectedId
-                setOnClickListener { viewModel.selectAccount(account.id, account.name) }
+                setOnClickListener { 
+                    val isCard = account.name.contains("credit", ignoreCase = true) || account.name.contains("card", ignoreCase = true)
+                    val isBank = account.name.contains("bank", ignoreCase = true) && !isCard
+                    
+                    if (isBank && viewModel.bankAccounts.value.isEmpty()) {
+                        showAccountGuidanceDialog("Bank Account")
+                        return@setOnClickListener
+                    }
+                    if (isCard && viewModel.creditCards.value.isEmpty()) {
+                        showAccountGuidanceDialog("Credit Card")
+                        return@setOnClickListener
+                    }
+                    
+                    viewModel.selectAccount(account.id, account.name) 
+                }
             }
             binding.cgAccounts.addView(chip)
         }
@@ -368,6 +384,18 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
             (binding.cgCreditCards.getChildAt(0) as? Chip)?.isChecked = true
             viewModel.selectCreditCard(cards[0].id)
         }
+    }
+
+    private fun showAccountGuidanceDialog(type: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("$type Required")
+            .setMessage("You haven't added any ${type.lowercase()}s yet. To track your ${type.lowercase()} spending, you need to add one first in the Accounts section.")
+            .setPositiveButton("Go to Accounts") { _, _ ->
+                findNavController().navigate(R.id.accountsFragment)
+                dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     override fun onDestroyView() {
