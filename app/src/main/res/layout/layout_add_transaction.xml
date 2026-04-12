@@ -117,10 +117,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingHorizontal="16dp"
-            app:selectionRequired="true"
+            app:selectionRequired="false"
             app:singleLine="true"
             app:singleSelection="true" />
     </HorizontalScrollView>
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/cgCategoriesExpanded"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingHorizontal="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/hsvCategories"
+        app:selectionRequired="false"
+        app:singleLine="false"
+        app:singleSelection="true" />
 
     <View
         android:id="@+id/vLine1"
@@ -129,7 +141,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
         android:background="@color/divider"
-        app:layout_constraintTop_toBottomOf="@+id/hsvCategories" />
+        app:layout_constraintTop_toBottomOf="@+id/cgCategoriesExpanded" />
 
     <!-- DATE -->
     <LinearLayout

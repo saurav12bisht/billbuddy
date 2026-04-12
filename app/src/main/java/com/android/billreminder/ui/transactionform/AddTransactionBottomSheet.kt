@@ -34,6 +34,7 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
     private var _binding: LayoutAddTransactionBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AddTransactionViewModel by viewModels()
+    private var isCategoryExpanded = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -214,28 +215,89 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
 
     private fun updateCategoryChips(categories: List<CategoryEntity>, selectedId: Long?) {
         binding.cgCategories.removeAllViews()
-        categories.forEach { category ->
-            val chip = Chip(requireContext()).apply {
+        binding.cgCategoriesExpanded.removeAllViews()
+
+        val limit = 5
+        val showMore = categories.size > limit
+
+        // Helper to create a category chip
+        fun createChip(category: CategoryEntity): Chip {
+            return Chip(requireContext()).apply {
                 text = "${category.iconEmoji} ${category.name}"
                 isCheckable = true
-                id = View.generateViewId()
                 isChecked = category.id == selectedId
                 setOnClickListener { viewModel.selectCategory(category.id) }
+                
+                // Style adjustment for selected state
+                if (isChecked) {
+                    setChipBackgroundColorResource(if (viewModel.type.value == "EXPENSE") R.color.expense_red else R.color.income_blue)
+                    setTextColor(Color.WHITE)
+                }
             }
-            binding.cgCategories.addView(chip)
-        }
-        
-        // Auto-select first if none selected
-        if (selectedId == null && categories.isNotEmpty() && !viewModel.isEditMode) {
-            (binding.cgCategories.getChildAt(0) as? Chip)?.isChecked = true
-            viewModel.selectCategory(categories[0].id)
         }
 
-        val newChip = Chip(requireContext()).apply {
-            text = getString(R.string.new_category)
-            setOnClickListener { /* Open Category Manager */ }
+        if (!isCategoryExpanded) {
+            // Compact Mode: Horizontal scroll
+            binding.hsvCategories.isVisible = true
+            binding.cgCategoriesExpanded.isVisible = false
+            
+            val visibleCats = if (showMore) categories.take(limit) else categories
+            visibleCats.forEach { binding.cgCategories.addView(createChip(it)) }
+
+            if (showMore) {
+                val moreChip = Chip(requireContext()).apply {
+                    text = "More ▾"
+                    setOnClickListener { 
+                        isCategoryExpanded = true
+                        updateCategoryChips(categories, selectedId)
+                    }
+                }
+                binding.cgCategories.addView(moreChip)
+            }
+            
+            // Still always show "New" at the end of scroll
+            val newChip = Chip(requireContext()).apply {
+                text = "+ New"
+                setOnClickListener { showAddCategoryDialog() }
+            }
+            binding.cgCategories.addView(newChip)
+            
+        } else {
+            // Expanded Mode: Multi-line grid
+            binding.hsvCategories.isVisible = false
+            binding.cgCategoriesExpanded.isVisible = true
+
+            categories.forEach { binding.cgCategoriesExpanded.addView(createChip(it)) }
+
+            // Add new category chip at the end
+            val newChip = Chip(requireContext()).apply {
+                text = "+ Add New Category"
+                setOnClickListener { showAddCategoryDialog() }
+            }
+            binding.cgCategoriesExpanded.addView(newChip)
+
+            // Add "Show Less" chip
+            val lessChip = Chip(requireContext()).apply {
+                text = "Show Less ▴"
+                setOnClickListener { 
+                    isCategoryExpanded = false
+                    updateCategoryChips(categories, selectedId)
+                }
+            }
+            binding.cgCategoriesExpanded.addView(lessChip)
         }
-        binding.cgCategories.addView(newChip)
+
+        // Handle auto-selection if needed
+        if (selectedId == null && categories.isNotEmpty() && !viewModel.isEditMode) {
+            viewModel.selectCategory(categories[0].id)
+        }
+    }
+
+    private fun showAddCategoryDialog() {
+        AddCategoryBottomSheet.newInstance { name, emoji ->
+            viewModel.insertNewCategory(name, emoji)
+            // The flow collector will automatically refresh the list
+        }.show(childFragmentManager, AddCategoryBottomSheet.TAG)
     }
 
     private fun updateAccountChips(accounts: List<AccountEntity>, selectedId: Long?) {

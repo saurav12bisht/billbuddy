@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
         CreditCardEntity::class,
         CreditCardBillEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 abstract class VyapaarDatabase : RoomDatabase() {
@@ -45,7 +45,7 @@ abstract class VyapaarDatabase : RoomDatabase() {
                     VyapaarDatabase::class.java,
                     "vyapaar_db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                     .addCallback(DatabaseCallback())
                     .build()
                     .also { INSTANCE = it }
@@ -68,17 +68,17 @@ abstract class VyapaarDatabase : RoomDatabase() {
 
             // Pre-populate Categories
             val categories = listOf(
-                CategoryEntity(name = "Food", iconEmoji = "🍛", colorHex = "#E8F5E9", isDefault = true),
-                CategoryEntity(name = "Transport", iconEmoji = "🚖", colorHex = "#FFF3E0", isDefault = true),
-                CategoryEntity(name = "Household", iconEmoji = "🏠", colorHex = "#F3E5F5", isDefault = true),
-                CategoryEntity(name = "Recharge", iconEmoji = "📱", colorHex = "#E3F2FD", isDefault = true),
-                CategoryEntity(name = "Investment", iconEmoji = "📈", colorHex = "#E0F7FA", isDefault = true),
-                CategoryEntity(name = "Shopping", iconEmoji = "🛍", colorHex = "#FFF8E1", isDefault = true),
-                CategoryEntity(name = "Health", iconEmoji = "💊", colorHex = "#FFEBEE", isDefault = true),
-                CategoryEntity(name = "Entertainment", iconEmoji = "🎬", colorHex = "#F3E5F5", isDefault = true),
-                CategoryEntity(name = "Salary", iconEmoji = "💰", colorHex = "#E8F5E9", isDefault = true),
-                CategoryEntity(name = "Freelance", iconEmoji = "💻", colorHex = "#E3F2FD", isDefault = true),
-                CategoryEntity(name = "Other", iconEmoji = "📦", colorHex = "#F1EFE8", isDefault = true)
+                CategoryEntity(name = "Food", iconEmoji = "🍛", colorHex = "#E8F5E9", isDefault = true, type = CategoryEntity.TYPE_EXPENSE),
+                CategoryEntity(name = "Transport", iconEmoji = "🚖", colorHex = "#FFF3E0", isDefault = true, type = CategoryEntity.TYPE_EXPENSE),
+                CategoryEntity(name = "Household", iconEmoji = "🏠", colorHex = "#F3E5F5", isDefault = true, type = CategoryEntity.TYPE_EXPENSE),
+                CategoryEntity(name = "Recharge", iconEmoji = "📱", colorHex = "#E3F2FD", isDefault = true, type = CategoryEntity.TYPE_EXPENSE),
+                CategoryEntity(name = "Investment", iconEmoji = "📈", colorHex = "#E0F7FA", isDefault = true, type = CategoryEntity.TYPE_BOTH),
+                CategoryEntity(name = "Shopping", iconEmoji = "🛍", colorHex = "#FFF8E1", isDefault = true, type = CategoryEntity.TYPE_EXPENSE),
+                CategoryEntity(name = "Health", iconEmoji = "💊", colorHex = "#FFEBEE", isDefault = true, type = CategoryEntity.TYPE_EXPENSE),
+                CategoryEntity(name = "Entertainment", iconEmoji = "🎬", colorHex = "#F3E5F5", isDefault = true, type = CategoryEntity.TYPE_EXPENSE),
+                CategoryEntity(name = "Salary", iconEmoji = "💰", colorHex = "#E8F5E9", isDefault = true, type = CategoryEntity.TYPE_INCOME),
+                CategoryEntity(name = "Freelance", iconEmoji = "💻", colorHex = "#E3F2FD", isDefault = true, type = CategoryEntity.TYPE_INCOME),
+                CategoryEntity(name = "Other", iconEmoji = "📦", colorHex = "#F1EFE8", isDefault = true, type = CategoryEntity.TYPE_BOTH)
             )
             categories.forEach { expenseDao.insertCategory(it) }
 
@@ -92,7 +92,7 @@ abstract class VyapaarDatabase : RoomDatabase() {
 
             // Reserve CC Payment category (used when marking a bill as paid)
             expenseDao.insertCategory(
-                CategoryEntity(name = "CC Payment", iconEmoji = "💳", colorHex = "#EDE7F6", isDefault = true)
+                CategoryEntity(name = "CC Payment", iconEmoji = "💳", colorHex = "#EDE7F6", isDefault = true, type = CategoryEntity.TYPE_BOTH)
             )
         }
     }
@@ -288,5 +288,16 @@ private val MIGRATION_6_7 = object : Migration(6, 7) {
         // 2. Set specific types for existing default accounts
         db.execSQL("UPDATE accounts SET accountType = 'CASH' WHERE name = 'Cash'")
         db.execSQL("UPDATE accounts SET accountType = 'CARD_PROXY' WHERE name = 'Credit Card'")
+    }
+}
+
+private val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1. Add type column to categories
+        db.execSQL("ALTER TABLE categories ADD COLUMN type TEXT NOT NULL DEFAULT 'EXPENSE'")
+        
+        // 2. Assign INCOME types to relevant existing categories
+        db.execSQL("UPDATE categories SET type = 'INCOME' WHERE name IN ('Salary', 'Freelance')")
+        db.execSQL("UPDATE categories SET type = 'BOTH' WHERE name IN ('Investment', 'Other', 'CC Payment')")
     }
 }

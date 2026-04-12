@@ -64,9 +64,18 @@ class AddTransactionViewModel @Inject constructor(
 
     val isEditMode: Boolean get() = editingTransactionId != null
 
-    val categories: StateFlow<List<CategoryEntity>> = repository.getAllCategories()
-        .map { it.filter { cat -> cat.name != "CC Payment" } }
+    private val _categories = repository.getAllCategories()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+    val categories: StateFlow<List<CategoryEntity>> = _type
+        .flatMapLatest { currentType ->
+            _categories.map { allCats ->
+                allCats.filter { cat ->
+                    cat.name != "CC Payment" && (cat.type == currentType || cat.type == CategoryEntity.TYPE_BOTH)
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     /** Main payment method chips (Cash, Bank, Credit Card) */
     val paymentMethodBaseAccounts: StateFlow<List<AccountEntity>> = repository.getAllAccounts()
@@ -212,6 +221,21 @@ class AddTransactionViewModel @Inject constructor(
             }
 
             onComplete()
+        }
+    }
+
+    fun insertNewCategory(name: String, emoji: String) {
+        viewModelScope.launch {
+            val typeForNewCat = if (_type.value == "INCOME") CategoryEntity.TYPE_INCOME else CategoryEntity.TYPE_EXPENSE
+            val newId = repository.insertCategory(
+                CategoryEntity(
+                    name = name,
+                    iconEmoji = emoji,
+                    colorHex = "#F1EFE8", // Default neutral color
+                    type = typeForNewCat
+                )
+            )
+            _selectedCategoryId.value = newId
         }
     }
 }
