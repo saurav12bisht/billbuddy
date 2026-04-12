@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,13 +15,13 @@ import com.android.billreminder.R
 import com.android.billreminder.databinding.LayoutAddTransactionBinding
 import com.android.billreminder.data.local.entity.CategoryEntity
 import com.android.billreminder.data.local.entity.AccountEntity
+import com.android.billreminder.domain.model.CreditCard
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -31,7 +32,11 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
     private val binding get() = _binding!!
     private val viewModel: AddTransactionViewModel by viewModels()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = LayoutAddTransactionBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -42,71 +47,117 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
         observeState()
     }
 
+    // ── Listeners ────────────────────────────────────────────────────────────
+
     private fun setupListeners() {
         binding.btnTypeExpense.setOnClickListener { viewModel.setType("EXPENSE") }
         binding.btnTypeIncome.setOnClickListener { viewModel.setType("INCOME") }
 
         binding.llDatePicker.setOnClickListener {
             val datePicker = MaterialDatePicker.Builder.datePicker()
-                .setSelection(viewModel.date.value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli())
+                .setSelection(
+                    viewModel.date.value
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli()
+                )
                 .build()
-            
             datePicker.addOnPositiveButtonClickListener { selection ->
-                val date = Instant.ofEpochMilli(selection).atZone(ZoneId.systemDefault()).toLocalDate()
+                val date = Instant.ofEpochMilli(selection)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()
                 viewModel.setDate(date)
             }
             datePicker.show(childFragmentManager, "date_picker")
         }
 
         binding.btnSave.setOnClickListener {
+            // Validate credit card selection if CC is chosen
+            if (viewModel.isCreditCardSelected.value && viewModel.selectedCreditCardId.value == null) {
+                binding.tvNoCardsWarning.isVisible = true
+                binding.tvNoCardsWarning.text = "⚠️ Please select which credit card you used."
+                return@setOnClickListener
+            }
             viewModel.saveTransaction(
                 binding.etAmount.text.toString(),
                 binding.etNote.text.toString()
-            ) {
-                dismiss()
-            }
+            ) { dismiss() }
         }
     }
+
+    // ── State observation ─────────────────────────────────────────────────────
 
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                launch { viewModel.type.collect { updateTypeToggle(it) } }
+
                 launch {
-                    viewModel.type.collect { type ->
-                        updateTypeToggle(type)
+                    viewModel.date.collect {
+                        binding.tvDate.text =
+                            it.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
                     }
                 }
+
+                launch { viewModel.categories.collect { updateCategoryChips(it) } }
+
+                // Top-level Payment Method (Cash, Bank, Credit Card)
+                launch { viewModel.paymentMethodBaseAccounts.collect { updateAccountChips(it) } }
+
+                // Show/hide credit card picker section
                 launch {
-                    viewModel.date.collect { date ->
-                        binding.tvDate.text = date.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+                    viewModel.isCreditCardSelected.collect { isCreditCard ->
+                        binding.llCreditCardPicker.isVisible = isCreditCard
+                        if (!isCreditCard) binding.tvNoCardsWarning.isVisible = false
                     }
                 }
+
+                // Show/hide bank account picker section
                 launch {
-                    viewModel.categories.collect { categories ->
-                        updateCategoryChips(categories)
+                    viewModel.isBankSelected.collect { isBank ->
+                        binding.llBankAccountPicker.isVisible = isBank
                     }
                 }
-                launch {
-                    viewModel.accounts.collect { accounts ->
-                        updateAccountChips(accounts)
-                    }
-                }
+
+                // Populate sub-pickers
+                launch { viewModel.creditCards.collect { updateCreditCardChips(it) } }
+                launch { viewModel.bankAccounts.collect { updateBankAccountChips(it) } }
             }
         }
     }
 
+    // ── UI update helpers ─────────────────────────────────────────────────────
+
     private fun updateTypeToggle(type: String) {
         val isExpense = type == "EXPENSE"
         binding.btnTypeExpense.apply {
-            setBackgroundColor(if (isExpense) ContextCompat.getColor(requireContext(), R.color.expense_red) else Color.TRANSPARENT)
-            setTextColor(if (isExpense) Color.WHITE else ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            setBackgroundColor(
+                if (isExpense) ContextCompat.getColor(requireContext(), R.color.expense_red)
+                else Color.TRANSPARENT
+            )
+            setTextColor(
+                if (isExpense) Color.WHITE
+                else ContextCompat.getColor(requireContext(), R.color.text_secondary)
+            )
         }
         binding.btnTypeIncome.apply {
-            setBackgroundColor(if (!isExpense) ContextCompat.getColor(requireContext(), R.color.income_blue) else Color.TRANSPARENT)
-            setTextColor(if (!isExpense) Color.WHITE else ContextCompat.getColor(requireContext(), R.color.text_secondary))
+            setBackgroundColor(
+                if (!isExpense) ContextCompat.getColor(requireContext(), R.color.income_blue)
+                else Color.TRANSPARENT
+            )
+            setTextColor(
+                if (!isExpense) Color.WHITE
+                else ContextCompat.getColor(requireContext(), R.color.text_secondary)
+            )
         }
         binding.btnSave.apply {
-            setBackgroundColor(ContextCompat.getColor(requireContext(), if (isExpense) R.color.expense_red else R.color.income_blue))
+            setBackgroundColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    if (isExpense) R.color.expense_red else R.color.income_blue
+                )
+            )
             text = getString(if (isExpense) R.string.save_expense else R.string.save_income)
         }
     }
@@ -126,7 +177,6 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                 viewModel.selectCategory(category.id)
             }
         }
-        // Add "+ New" chip
         val newChip = Chip(requireContext()).apply {
             text = getString(R.string.new_category)
             setOnClickListener { /* Open Category Manager */ }
@@ -141,12 +191,66 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                 text = "${account.iconEmoji} ${account.name}"
                 isCheckable = true
                 id = View.generateViewId()
-                setOnClickListener { viewModel.selectAccount(account.id) }
+                setOnClickListener { viewModel.selectAccount(account.id, account.name) }
             }
             binding.cgAccounts.addView(chip)
             if (index == 0) {
                 chip.isChecked = true
-                viewModel.selectAccount(account.id)
+                viewModel.selectAccount(account.id, account.name)
+            }
+        }
+    }
+
+    /**
+     * Populates the bank account chips that appear when "Bank" payment method is selected.
+     */
+    private fun updateBankAccountChips(accounts: List<AccountEntity>) {
+        binding.cgBankAccounts.removeAllViews()
+        accounts.forEachIndexed { index, account ->
+            val chip = Chip(requireContext()).apply {
+                text = "${account.iconEmoji} ${account.name}"
+                isCheckable = true
+                id = View.generateViewId()
+                setOnClickListener { viewModel.selectBankAccount(account.id) }
+            }
+            binding.cgBankAccounts.addView(chip)
+
+            // Auto-select first bank account
+            if (index == 0) {
+                chip.isChecked = true
+                viewModel.selectBankAccount(account.id)
+            }
+        }
+    }
+
+    /**
+     * Populates the credit card chips that appear when "Credit Card" account is selected.
+     */
+    private fun updateCreditCardChips(cards: List<CreditCard>) {
+        binding.cgCreditCards.removeAllViews()
+
+        if (cards.isEmpty()) {
+            binding.tvNoCardsWarning?.text =
+                "⚠️ No credit cards saved. Add one in Settings → Credit Cards."
+            binding.tvNoCardsWarning?.isVisible = viewModel.isCreditCardSelected.value
+            return
+        }
+
+        binding.tvNoCardsWarning?.isVisible = false
+
+        cards.forEachIndexed { index, card ->
+            val chip = Chip(requireContext()).apply {
+                text = "💳 ${card.bankName} ••••${card.lastFourDigits}"
+                isCheckable = true
+                id = View.generateViewId()
+                setOnClickListener { viewModel.selectCreditCard(card.id) }
+            }
+            binding.cgCreditCards.addView(chip)
+
+            // Auto-select first card
+            if (index == 0) {
+                chip.isChecked = true
+                viewModel.selectCreditCard(card.id)
             }
         }
     }

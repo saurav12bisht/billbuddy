@@ -7,12 +7,13 @@ import com.android.billreminder.domain.repository.CreditCardRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import java.util.*
+import javax.inject.Inject
 
 data class CreditCardUiModel(
     val card: CreditCard,
-    val currentCycleSpendCents: Long = 0,
+    val currentCycleSpendCents: Long = 0L,
+    val outstandingAmountCents: Long = 0L,
     val nextDueDay: Int
 )
 
@@ -22,7 +23,7 @@ class CreditCardListViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _creditCards = MutableStateFlow<List<CreditCardUiModel>>(emptyList())
-    val creditCards = _creditCards.asStateFlow()
+    val creditCards: StateFlow<List<CreditCardUiModel>> = _creditCards.asStateFlow()
 
     init {
         loadCreditCards()
@@ -30,75 +31,58 @@ class CreditCardListViewModel @Inject constructor(
 
     private fun loadCreditCards() = viewModelScope.launch {
         repository.getAllCreditCards().collect { cards ->
-            val uiModels = cards.map { card ->
-                // Calculate current cycle dates
-                val (start, end) = calculateBillingCycle(card.billingDay)
-                
-                // Get total spend for this cycle
-                // Since totalSpend is a Flow, this is a bit tricky to map in a simple list mapping.
-                // For now, we'll just show the card, and ideally we'd combine flows.
-                
-                CreditCardUiModel(
-                    card = card,
-                    currentCycleSpendCents = 0, // Will be updated
-                    nextDueDay = card.dueDay
-                )
+            // Emit immediately with zeros so the list shows fast
+            _creditCards.value = cards.map { card ->
+                CreditCardUiModel(card = card, nextDueDay = card.dueDay)
             }
-            _creditCards.value = uiModels
-            
-            // Further logic to populate spend for each card
-            uiModels.forEach { uiModel ->
-                updateSpendForCard(uiModel)
-            }
-        }
-    }
 
-    private fun updateSpendForCard(uiModel: CreditCardUiModel) = viewModelScope.launch {
-        val (start, end) = calculateBillingCycle(uiModel.card.billingDay)
-        repository.getTotalSpendForCardInCycle(uiModel.card.id, start, end).collect { total ->
-            _creditCards.update { list ->
-                list.map { item ->
-                    if (item.card.id == uiModel.card.id) {
-                        item.copy(currentCycleSpendCents = total ?: 0L)
-                    } else item
+            // Then update each with live spend + outstanding
+            cards.forEach { card ->
+                val (start, end) = calculateCurrentCycleRange(card.billingDay)
+
+                launch {
+                    combine(
+                        repository.getTotalSpendForCardInCycle(card.id, start, end),
+                        repository.getOutstandingAmount(card.id)
+                    ) { spend, outstanding ->
+                        Pair(spend, outstanding)
+                    }.collect { (spend, outstanding) ->
+                        _creditCards.update { list ->
+                            list.map { item ->
+                                if (item.card.id == card.id) {
+                                    item.copy(
+                                        currentCycleSpendCents = spend,
+                                        outstandingAmountCents = outstanding
+                                    )
+                                } else item
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
-    private fun calculateBillingCycle(billingDay: Int): Pair<Long, Long> {
-        val calendar = Calendar.getInstance()
-        val today = calendar.get(Calendar.DAY_OF_MONTH)
-        
-        val startCalendar = Calendar.getInstance()
-        val endCalendar = Calendar.getInstance()
-        
+    private fun calculateCurrentCycleRange(billingDay: Int): Pair<Long, Long> {
+        val cal = Calendar.getInstance()
+        val today = cal.get(Calendar.DAY_OF_MONTH)
+
+        val start = Calendar.getInstance()
+        val end = Calendar.getInstance()
+
         if (today >= billingDay) {
-            // Cycle started this month
-            startCalendar.set(Calendar.DAY_OF_MONTH, billingDay)
-            startCalendar.set(Calendar.HOUR_OF_DAY, 0)
-            startCalendar.set(Calendar.MINUTE, 0)
-            startCalendar.set(Calendar.SECOND, 0)
-            
-            endCalendar.time = startCalendar.time
-            endCalendar.add(Calendar.MONTH, 1)
-            endCalendar.add(Calendar.DAY_OF_MONTH, -1)
-            endCalendar.set(Calendar.HOUR_OF_DAY, 23)
-            endCalendar.set(Calendar.MINUTE, 59)
-            endCalendar.set(Calendar.SECOND, 59)
+            start.set(Calendar.DAY_OF_MONTH, billingDay)
         } else {
-            // Cycle started last month
-            startCalendar.add(Calendar.MONTH, -1)
-            startCalendar.set(Calendar.DAY_OF_MONTH, billingDay)
-            startCalendar.set(Calendar.HOUR_OF_DAY, 0)
-            startCalendar.set(Calendar.MINUTE, 0)
-            startCalendar.set(Calendar.SECOND, 0)
-            
-            endCalendar.time = startCalendar.time
-            endCalendar.add(Calendar.MONTH, 1)
-            endCalendar.add(Calendar.DAY_OF_MONTH, -1)
+            start.add(Calendar.MONTH, -1)
+            start.set(Calendar.DAY_OF_MONTH, billingDay)
         }
-        
-        return Pair(startCalendar.timeInMillis, endCalendar.timeInMillis)
+        start.set(Calendar.HOUR_OF_DAY, 0); start.set(Calendar.MINUTE, 0); start.set(Calendar.SECOND, 0); start.set(Calendar.MILLISECOND, 0)
+
+        end.time = start.time
+        end.add(Calendar.MONTH, 1)
+        end.add(Calendar.DAY_OF_MONTH, -1)
+        end.set(Calendar.HOUR_OF_DAY, 23); end.set(Calendar.MINUTE, 59); end.set(Calendar.SECOND, 59)
+
+        return Pair(start.timeInMillis, end.timeInMillis)
     }
 }

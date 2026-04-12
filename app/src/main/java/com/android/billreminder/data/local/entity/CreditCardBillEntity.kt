@@ -22,7 +22,10 @@ data class CreditCardBillEntity(
     val cardId: Long,
     val billingCycleStartDate: Long,
     val billingCycleEndDate: Long,
+    val dueDateMillis: Long,            // Actual due date for this bill
     val totalAmountCents: Long,
     val isPaid: Boolean = false,
-    val paidAt: Long? = null
+    val paidAt: Long? = null,
+    val paidFromAccountId: Long? = null, // Which account was used to pay
+    val generatedExpenseId: Long? = null // The NORMAL expense entry created when paid
 )

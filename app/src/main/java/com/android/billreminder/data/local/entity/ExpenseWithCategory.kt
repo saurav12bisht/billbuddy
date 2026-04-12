@@ -9,5 +9,15 @@ data class ExpenseWithCategory(
         parentColumn = "categoryId",
         entityColumn = "id"
     )
-    val category: CategoryEntity
+    val category: CategoryEntity,
+    @Relation(
+        parentColumn = "accountId",
+        entityColumn = "id"
+    )
+    val account: AccountEntity,
+    @Relation(
+        parentColumn = "creditCardId",
+        entityColumn = "id"
+    )
+    val creditCard: CreditCardEntity?
 )

@@ -72,7 +72,14 @@
         android:id="@+id/accountsFragment"
         android:name="com.android.billreminder.ui.accounts.AccountsFragment"
         android:label="@string/nav_accounts"
-        tools:layout="@layout/fragment_accounts" />
+        tools:layout="@layout/fragment_accounts">
+        <action
+            android:id="@+id/action_accounts_to_creditCardList"
+            app:destination="@id/creditCardListFragment" />
+        <action
+            android:id="@+id/action_accounts_to_creditCardDetail"
+            app:destination="@id/creditCardDetailFragment" />
+    </fragment>
 
     <dialog
         android:id="@+id/addTransactionBottomSheet"
@@ -102,6 +109,20 @@
         <action
             android:id="@+id/action_creditCardList_to_addEdit"
             app:destination="@id/addEditCreditCardFragment" />
+        <action
+            android:id="@+id/action_creditCardList_to_detail"
+            app:destination="@id/creditCardDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/creditCardDetailFragment"
+        android:name="com.android.billreminder.ui.creditcards.CreditCardDetailFragment"
+        android:label="Card Detail"
+        tools:layout="@layout/fragment_credit_card_detail">
+        <argument
+            android:name="cardId"
+            app:argType="long"
+            android:defaultValue="-1L" />
     </fragment>
 
     <fragment

@@ -25,10 +25,14 @@ interface ExpenseRepository {
 
     fun getAllCategories(): Flow<List<CategoryEntity>>
     suspend fun insertCategory(category: CategoryEntity): Long
+    suspend fun getCategoryByName(name: String): CategoryEntity?
+    suspend fun getFirstCategory(): CategoryEntity?
 
     fun getAllAccounts(): Flow<List<AccountEntity>>
+    fun getAccountsByType(type: String): Flow<List<AccountEntity>>
     suspend fun insertAccount(account: AccountEntity): Long
     suspend fun updateAccountBalance(accountId: Long, delta: Long)
+    suspend fun deleteAccount(account: AccountEntity)
 
     fun getTotalAmountInRange(start: Long, end: Long): Flow<Long>
 }

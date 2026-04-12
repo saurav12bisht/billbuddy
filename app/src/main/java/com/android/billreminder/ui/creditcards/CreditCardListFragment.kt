@@ -34,9 +34,9 @@ class CreditCardListFragment : BaseFragment<FragmentCreditCardListBinding>(Fragm
 
     private fun setupRecyclerView() {
         adapter = CreditCardAdapter { uiModel ->
-            val action = CreditCardListFragmentDirections.actionCreditCardListToAddEdit(
-                cardId = uiModel.card.id,
-                title = "Edit Credit Card"
+            // Tap → navigate to detail screen
+            val action = CreditCardListFragmentDirections.actionCreditCardListToDetail(
+                cardId = uiModel.card.id
             )
             findNavController().navigate(action)
         }

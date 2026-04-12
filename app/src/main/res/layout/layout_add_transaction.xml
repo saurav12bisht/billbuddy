@@ -217,6 +217,89 @@
             app:singleSelection="true" />
     </HorizontalScrollView>
 
+    <!-- CREDIT CARD PICKER — shown only when Credit Card account is selected -->
+    <LinearLayout
+        android:id="@+id/llCreditCardPicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/hsvAccounts">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Which Credit Card?"
+            android:textColor="@color/accent_purple"
+            android:textSize="12sp" />
+
+        <!-- Cards horizontal scroll -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgCreditCards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+
+        <!-- No cards warning -->
+        <TextView
+            android:id="@+id/tvNoCardsWarning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/poppins_regular"
+            android:text="⚠️ No credit cards saved. Add one in Settings → Credit Cards."
+            android:textColor="@color/expense_red"
+            android:textSize="11sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- BANK ACCOUNT PICKER — shown only when Bank account is selected -->
+    <LinearLayout
+        android:id="@+id/llBankAccountPicker"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/llCreditCardPicker">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Which Bank Account?"
+            android:textColor="@color/primary"
+            android:textSize="12sp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgBankAccounts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:selectionRequired="true"
+                app:singleLine="true"
+                app:singleSelection="true" />
+        </HorizontalScrollView>
+    </LinearLayout>
+
     <Button
         android:id="@+id/btnSave"
         style="@style/Widget.Paydrift.Button"
@@ -225,6 +308,6 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="24dp"
         android:text="@string/save_expense"
-        app:layout_constraintTop_toBottomOf="@+id/hsvAccounts" />
+        app:layout_constraintTop_toBottomOf="@+id/llBankAccountPicker" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

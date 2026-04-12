@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
         CreditCardEntity::class,
         CreditCardBillEntity::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 abstract class VyapaarDatabase : RoomDatabase() {
@@ -45,7 +45,7 @@ abstract class VyapaarDatabase : RoomDatabase() {
                     VyapaarDatabase::class.java,
                     "vyapaar_db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     .addCallback(DatabaseCallback())
                     .build()
                     .also { INSTANCE = it }
@@ -84,11 +84,16 @@ abstract class VyapaarDatabase : RoomDatabase() {
 
             // Pre-populate Accounts
             val accounts = listOf(
-                AccountEntity(name = "Cash", iconEmoji = "💵", colorHex = "#FFF3E0", balanceCents = 0),
-                AccountEntity(name = "Bank", iconEmoji = "🏦", colorHex = "#E3F2FD", balanceCents = 0),
-                AccountEntity(name = "Credit Card", iconEmoji = "💳", colorHex = "#F3E5F5", balanceCents = 0)
+                AccountEntity(name = "Cash", iconEmoji = "💵", colorHex = "#FFF3E0", balanceCents = 0, accountType = AccountType.CASH),
+                AccountEntity(name = "Bank", iconEmoji = "🏦", colorHex = "#E3F2FD", balanceCents = 0, accountType = AccountType.BANK),
+                AccountEntity(name = "Credit Card", iconEmoji = "💳", colorHex = "#F3E5F5", balanceCents = 0, accountType = AccountType.CARD_PROXY)
             )
             accounts.forEach { accountDao.insertAccount(it) }
+
+            // Reserve CC Payment category (used when marking a bill as paid)
+            expenseDao.insertCategory(
+                CategoryEntity(name = "CC Payment", iconEmoji = "💳", colorHex = "#EDE7F6", isDefault = true)
+            )
         }
     }
 }
@@ -247,5 +252,41 @@ private val MIGRATION_4_5 = object : Migration(4, 5) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_categoryId ON expenses(categoryId)")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_accountId ON expenses(accountId)")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_creditCardId ON expenses(creditCardId)")
+    }
+}
+
+/**
+ * MIGRATION 5 → 6
+ *
+ * Changes:
+ * 1. expenses — add `transactionType TEXT NOT NULL DEFAULT 'NORMAL'`
+ *    CREDIT = credit card spend (excluded from totals until bill is paid)
+ *    NORMAL = standard income/expense (counted immediately)
+ *
+ * 2. credit_card_bills — add:
+ *    - dueDateMillis INTEGER NOT NULL DEFAULT 0
+ *    - paidFromAccountId INTEGER (nullable)
+ *    - generatedExpenseId INTEGER (nullable)
+ */
+private val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1. Add transactionType to expenses
+        db.execSQL("ALTER TABLE expenses ADD COLUMN transactionType TEXT NOT NULL DEFAULT 'NORMAL'")
+
+        // 2. Add new columns to credit_card_bills
+        db.execSQL("ALTER TABLE credit_card_bills ADD COLUMN dueDateMillis INTEGER NOT NULL DEFAULT 0")
+        db.execSQL("ALTER TABLE credit_card_bills ADD COLUMN paidFromAccountId INTEGER")
+        db.execSQL("ALTER TABLE credit_card_bills ADD COLUMN generatedExpenseId INTEGER")
+    }
+}
+
+private val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1. Add accountType column with default 'BANK'
+        db.execSQL("ALTER TABLE accounts ADD COLUMN accountType TEXT NOT NULL DEFAULT 'BANK'")
+
+        // 2. Set specific types for existing default accounts
+        db.execSQL("UPDATE accounts SET accountType = 'CASH' WHERE name = 'Cash'")
+        db.execSQL("UPDATE accounts SET accountType = 'CARD_PROXY' WHERE name = 'Credit Card'")
     }
 }

@@ -1,7 +1,10 @@
 package com.android.billreminder.data.repository
 
 import com.android.billreminder.data.local.dao.CreditCardDao
+import com.android.billreminder.data.local.dao.ExpenseDao
+import com.android.billreminder.data.local.entity.ExpenseEntity
 import com.android.billreminder.data.local.entity.ExpenseWithCategory
+import com.android.billreminder.data.local.entity.TransactionType
 import com.android.billreminder.di.IoDispatcher
 import com.android.billreminder.domain.model.CreditCard
 import com.android.billreminder.domain.model.CreditCardBill
@@ -10,6 +13,7 @@ import com.android.billreminder.domain.model.toEntity
 import com.android.billreminder.domain.repository.CreditCardRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -17,8 +21,11 @@ import javax.inject.Inject
 
 class CreditCardRepositoryImpl @Inject constructor(
     private val creditCardDao: CreditCardDao,
+    private val expenseDao: ExpenseDao,
     @IoDispatcher private val io: CoroutineDispatcher
 ) : CreditCardRepository {
+
+    // ── Card CRUD ──────────────────────────────────────────────
 
     override fun getAllCreditCards(): Flow<List<CreditCard>> =
         creditCardDao.getAllCreditCards()
@@ -43,6 +50,8 @@ class CreditCardRepositoryImpl @Inject constructor(
         creditCardDao.deleteCreditCard(card.toEntity())
     }
 
+    // ── Credit Spend Queries ──────────────────────────────────
+
     override fun getExpensesForCardInCycle(
         cardId: Long,
         startMillis: Long,
@@ -54,41 +63,111 @@ class CreditCardRepositoryImpl @Inject constructor(
         cardId: Long,
         startMillis: Long,
         endMillis: Long
-    ): Flow<Long?> =
+    ): Flow<Long> =
         creditCardDao.getTotalSpendForCardInCycle(cardId, startMillis, endMillis).flowOn(io)
+
+    override fun getOutstandingAmount(cardId: Long): Flow<Long> =
+        creditCardDao.getOutstandingAmount(cardId).flowOn(io)
+
+    // ── Bill Management ───────────────────────────────────────
 
     override fun getBillsForCard(cardId: Long): Flow<List<CreditCardBill>> =
         creditCardDao.getBillsForCard(cardId)
-            .map { entities -> 
-                entities.map { entity ->
-                    CreditCardBill(
-                        id = entity.id,
-                        cardId = entity.cardId,
-                        billingCycleStartDate = entity.billingCycleStartDate,
-                        billingCycleEndDate = entity.billingCycleEndDate,
-                        totalAmountCents = entity.totalAmountCents,
-                        isPaid = entity.isPaid,
-                        paidAt = entity.paidAt
-                    )
-                }
-            }
+            .map { entities -> entities.map { it.toDomain() } }
+            .flowOn(io)
+
+    override fun getUnpaidBills(cardId: Long): Flow<List<CreditCardBill>> =
+        creditCardDao.getUnpaidBills(cardId)
+            .map { entities -> entities.map { it.toDomain() } }
+            .flowOn(io)
+
+    override fun getAllUnpaidBills(): Flow<List<CreditCardBill>> =
+        creditCardDao.getAllUnpaidBills()
+            .map { entities -> entities.map { it.toDomain() } }
             .flowOn(io)
 
     override suspend fun saveBill(bill: CreditCardBill): Long = withContext(io) {
-        val entity = com.android.billreminder.data.local.entity.CreditCardBillEntity(
-            id = bill.id,
-            cardId = bill.cardId,
-            billingCycleStartDate = bill.billingCycleStartDate,
-            billingCycleEndDate = bill.billingCycleEndDate,
-            totalAmountCents = bill.totalAmountCents,
-            isPaid = bill.isPaid,
-            paidAt = bill.paidAt
-        )
+        val entity = bill.toEntity()
         if (entity.id == 0L) {
             creditCardDao.insertBill(entity)
         } else {
             creditCardDao.updateBill(entity)
             entity.id
         }
+    }
+
+    /**
+     * Mark a credit card bill as paid:
+     * 1. Creates a real EXPENSE entry so it flows into the user's reports.
+     * 2. Updates the bill record as PAID and links the generated expense.
+     */
+    override suspend fun markBillAsPaid(
+        bill: CreditCardBill,
+        paidFromAccountId: Long,
+        ccPaymentCategoryId: Long
+    ): Long = withContext(io) {
+        val now = System.currentTimeMillis()
+
+        // 1. Create a NORMAL/EXPENSE entry for the bill amount
+        val paymentExpense = ExpenseEntity(
+            id = 0,
+            type = "EXPENSE",
+            transactionType = TransactionType.NORMAL,
+            amountCents = bill.totalAmountCents,
+            categoryId = ccPaymentCategoryId,
+            accountId = paidFromAccountId,
+            creditCardId = bill.cardId,
+            note = "Credit card bill payment",
+            dateMillis = now,
+            createdAt = now
+        )
+        val expenseId = expenseDao.insertExpense(paymentExpense)
+
+        // 2. Mark bill as paid and link the generated expense
+        val updatedBill = bill.toEntity().copy(
+            isPaid = true,
+            paidAt = now,
+            paidFromAccountId = paidFromAccountId,
+            generatedExpenseId = expenseId
+        )
+        creditCardDao.updateBill(updatedBill)
+
+        expenseId
+    }
+
+    /**
+     * Lazily generates a bill for the current billing cycle, or returns the
+     * existing one if it was already generated. Calculates the total from
+     * CREDIT-type transactions in that cycle range.
+     */
+    override suspend fun generateOrGetBillForCycle(
+        card: CreditCard,
+        cycleStartMillis: Long,
+        cycleEndMillis: Long,
+        dueDateMillis: Long
+    ): CreditCardBill = withContext(io) {
+        // Check if a bill already exists for this cycle
+        val existingEntity = creditCardDao.getBillByCycleStart(card.id, cycleStartMillis)
+        if (existingEntity != null) {
+            return@withContext existingEntity.toDomain()
+        }
+
+        // Calculate total from CREDIT spends in the cycle
+        val total = creditCardDao
+            .getTotalSpendForCardInCycle(card.id, cycleStartMillis, cycleEndMillis)
+            .first()
+
+        // Only generate a bill if there was spend
+        val newBill = CreditCardBill(
+            id = 0,
+            cardId = card.id,
+            billingCycleStartDate = cycleStartMillis,
+            billingCycleEndDate = cycleEndMillis,
+            dueDateMillis = dueDateMillis,
+            totalAmountCents = total,
+            isPaid = false
+        )
+        val billId = creditCardDao.insertBill(newBill.toEntity())
+        newBill.copy(id = billId)
     }
 }

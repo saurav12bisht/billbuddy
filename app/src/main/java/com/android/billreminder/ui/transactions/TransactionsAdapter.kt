@@ -71,7 +71,14 @@ class TransactionsAdapter(
             
             binding.tvCategoryName.text = item.category.name
             binding.tvNote.text = item.expense.note ?: ""
-            binding.tvAccountName.text = "Account" // Account name would come from a relation if needed
+            
+            // Show Account Name + Card Name if it's a credit spend
+            val accountInfo = if (item.creditCard != null) {
+                "${item.account.name} (${item.creditCard.bankName} ••${item.creditCard.lastFourDigits})"
+            } else {
+                item.account.name
+            }
+            binding.tvAccountName.text = accountInfo
             
             val color = if (item.expense.type == "INCOME") R.color.income_blue else R.color.expense_red
             binding.tvAmount.setTextColor(ContextCompat.getColor(binding.root.context, color))

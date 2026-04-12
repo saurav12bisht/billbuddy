@@ -4,6 +4,7 @@ import androidx.room.*
 import com.android.billreminder.data.local.entity.CategoryEntity
 import com.android.billreminder.data.local.entity.ExpenseEntity
 import com.android.billreminder.data.local.entity.ExpenseWithCategory
+import com.android.billreminder.data.local.entity.TransactionType
 import kotlinx.coroutines.flow.Flow
 
 data class MonthlyTotals(
@@ -20,6 +21,10 @@ data class DailyTotal(
 @Dao
 interface ExpenseDao {
 
+    /**
+     * All NORMAL transactions (income + expense) for the month.
+     * CREDIT-type card spends are explicitly excluded.
+     */
     @Transaction
     @Query("""
         SELECT * FROM expenses 
@@ -28,15 +33,22 @@ interface ExpenseDao {
     """)
     fun getAllByMonth(startMillis: Long, endMillis: Long): Flow<List<ExpenseWithCategory>>
 
+    /**
+     * Monthly income/expense totals — excludes CREDIT transactions.
+     */
     @Query("""
         SELECT 
             SUM(CASE WHEN type = 'INCOME' THEN amountCents ELSE 0 END) as totalIncome,
             SUM(CASE WHEN type = 'EXPENSE' THEN amountCents ELSE 0 END) as totalExpense
         FROM expenses 
         WHERE dateMillis BETWEEN :startMillis AND :endMillis
+        AND transactionType = 'NORMAL'
     """)
     fun getMonthlyTotals(startMillis: Long, endMillis: Long): Flow<MonthlyTotals>
 
+    /**
+     * Daily breakdown — excludes CREDIT transactions.
+     */
     @Query("""
         SELECT 
             dateMillis,
@@ -44,10 +56,36 @@ interface ExpenseDao {
             SUM(CASE WHEN type = 'EXPENSE' THEN amountCents ELSE 0 END) as expenseTotal
         FROM expenses 
         WHERE dateMillis BETWEEN :startMillis AND :endMillis
+        AND transactionType = 'NORMAL'
         GROUP BY dateMillis
         ORDER BY dateMillis DESC
     """)
     fun getDailyTotals(startMillis: Long, endMillis: Long): Flow<List<DailyTotal>>
+
+    /**
+     * Credit card spends (CREDIT type) for a specific card and period.
+     * Used to show the credit card detail history.
+     */
+    @Transaction
+    @Query("""
+        SELECT * FROM expenses 
+        WHERE creditCardId = :cardId
+        AND dateMillis BETWEEN :startMillis AND :endMillis
+        AND transactionType = 'CREDIT'
+        ORDER BY dateMillis DESC
+    """)
+    fun getCreditSpendsByCardInPeriod(cardId: Long, startMillis: Long, endMillis: Long): Flow<List<ExpenseWithCategory>>
+
+    /**
+     * Unbilled credit spend total for a specific card in a date range.
+     */
+    @Query("""
+        SELECT COALESCE(SUM(amountCents), 0) FROM expenses 
+        WHERE creditCardId = :cardId 
+        AND dateMillis BETWEEN :startMillis AND :endMillis
+        AND transactionType = 'CREDIT'
+    """)
+    fun getUnbilledSpendForCard(cardId: Long, startMillis: Long, endMillis: Long): Flow<Long>
 
     @Query("SELECT * FROM categories ORDER BY name ASC")
     fun getAllCategories(): Flow<List<CategoryEntity>>
@@ -74,6 +112,15 @@ interface ExpenseDao {
     @Query("DELETE FROM categories WHERE id = :id AND isDefault = 0")
     suspend fun deleteCategory(id: Long)
 
-    @Query("SELECT SUM(amountCents) FROM expenses WHERE type = 'EXPENSE' AND dateMillis BETWEEN :start AND :end")
+    /**
+     * Total expense in range — excludes CREDIT transactions.
+     */
+    @Query("SELECT SUM(amountCents) FROM expenses WHERE type = 'EXPENSE' AND transactionType = 'NORMAL' AND dateMillis BETWEEN :start AND :end")
     fun getTotalAmountInRange(start: Long, end: Long): Flow<Long>
+
+    /**
+     * Check if a reserved category exists by name.
+     */
+    @Query("SELECT * FROM categories WHERE name = :name LIMIT 1")
+    suspend fun getCategoryByName(name: String): CategoryEntity?
 }

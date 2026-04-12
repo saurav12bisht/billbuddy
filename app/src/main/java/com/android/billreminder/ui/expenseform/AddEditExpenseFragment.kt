@@ -1,10 +1,10 @@
 package com.android.billreminder.ui.expenseform
 
-import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,23 +12,38 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.android.billreminder.R
+import com.android.billreminder.data.local.entity.AccountEntity
+import com.android.billreminder.data.local.entity.TransactionType
 import com.android.billreminder.databinding.FragmentAddEditExpenseBinding
+import com.android.billreminder.domain.model.CreditCard
 import com.android.billreminder.domain.model.Expense
 import com.android.billreminder.ui.common.BaseFragment
 import com.android.billreminder.ui.common.util.DateFormatter
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+/** Which payment method the user has selected in the toggle. */
+private enum class PaymentMethod { CASH, BANK, CREDIT_CARD }
+
 @AndroidEntryPoint
-class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(FragmentAddEditExpenseBinding::inflate) {
+class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(
+    FragmentAddEditExpenseBinding::inflate
+) {
 
     private val viewModel: AddEditExpenseViewModel by viewModels()
     private var dateMillis: Long = System.currentTimeMillis()
     private var existingExpenseId: Long = -1L
     private var createdAt: Long = 0L
     private var selectedCategoryId: Long = -1L
+
+    // Payment state
+    private var paymentMethod: PaymentMethod = PaymentMethod.CASH
     private var selectedAccountId: Long = -1L
     private var selectedCreditCardId: Long? = null
+
+    // Live data
+    private var accountsList: List<AccountEntity> = emptyList()
+    private var creditCardsList: List<CreditCard> = emptyList()
 
     override fun onInit() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
@@ -37,68 +52,26 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
             insets
         }
         existingExpenseId = arguments?.getLong("expenseId", -1L) ?: -1L
-        setupToolbar()
-        setupDropdowns()
+        binding.toolbar.title = if (existingExpenseId > 0L) "Edit Expense" else "Add Expense"
+        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+
         setupDatePicker()
+        setupPaymentToggle()
         bindState()
-        
-        if (existingExpenseId > 0L) {
-            loadExpense()
-        } else {
-            updateDateLabel()
-        }
-        
+
+        if (existingExpenseId > 0L) loadExpense()
+        else updateDateLabel()
+
         binding.btnSaveExpense.setOnClickListener { saveExpense() }
         binding.btnCancel.setOnClickListener { findNavController().navigateUp() }
     }
 
-    private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
-        binding.toolbar.title = if (existingExpenseId > 0L) {
-            "Edit Expense"
-        } else {
-            "Add Expense"
-        }
-    }
-
-    private fun setupDropdowns() {
-        val categories = arrayOf("Food 🍔", "Travel \uD83D\uDE97", "Shopping \uD83D\uDECD️", "Bills \uD83D\uDCB3", "Others")
-        
-        // Chip Group Category
-        categories.forEach { category ->
-            val chip = com.google.android.material.chip.Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Suggestion).apply {
-                id = android.view.View.generateViewId()
-                text = category
-                isCheckable = true
-                chipBackgroundColor = android.content.res.ColorStateList.valueOf(requireContext().getColor(R.color.surface2))
-                setTextColor(requireContext().getColor(R.color.text_secondary))
-                chipStrokeWidth = 0f
-            }
-            binding.cgCategory.addView(chip)
-        }
-        
-        binding.cgCategory.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isNotEmpty()) {
-                val selectedChip = group.findViewById<com.google.android.material.chip.Chip>(checkedIds.first())
-                selectedChip?.let {
-                    binding.etCategory.setText(it.text.toString())
-                }
-            } else {
-                binding.etCategory.setText("")
-            }
-        }
-        binding.cgCategory.isSelectionRequired = true
-        
-        if (binding.etCategory.text.isNullOrBlank() && binding.cgCategory.childCount > 0) {
-            binding.etCategory.setText(categories.first(), false)
-            (binding.cgCategory.getChildAt(0) as? com.google.android.material.chip.Chip)?.isChecked = true
-        }
-    }
+    // ── Date picker ─────────────────────────────────────────────────────────
 
     private fun setupDatePicker() {
         binding.inputDate.setOnClickListener {
             val picker = MaterialDatePicker.Builder.datePicker()
-                .setTitleText("Select Expense Date")
+                .setTitleText("Select Date")
                 .setSelection(dateMillis)
                 .build()
             picker.addOnPositiveButtonClickListener { selected ->
@@ -109,17 +82,67 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
         }
     }
 
+    // ── Payment method toggle ───────────────────────────────────────────────
+
+    private fun setupPaymentToggle() {
+        // Default to Cash
+        binding.togglePaymentMethod.check(R.id.btnPayCash)
+        updatePaymentUI(PaymentMethod.CASH)
+
+        binding.togglePaymentMethod.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
+            val selected = when (checkedId) {
+                R.id.btnPayCash  -> PaymentMethod.CASH
+                R.id.btnPayBank  -> PaymentMethod.BANK
+                R.id.btnPayCard  -> PaymentMethod.CREDIT_CARD
+                else             -> PaymentMethod.CASH
+            }
+            paymentMethod = selected
+            updatePaymentUI(selected)
+        }
+    }
+
+    /**
+     * Shows/hides the account picker and credit card picker based on
+     * the selected payment method.
+     */
+    private fun updatePaymentUI(method: PaymentMethod) {
+        val isCreditCard = method == PaymentMethod.CREDIT_CARD
+
+        // Account picker: shown for Cash and Bank (but filtered to non-CC accounts)
+        binding.tilAccount.isVisible = !isCreditCard
+        if (!isCreditCard) {
+            selectedCreditCardId = null
+            refreshAccountDropdown()
+        }
+
+        // Credit card picker: shown only when Card is selected
+        val hasCards = creditCardsList.isNotEmpty()
+        binding.tilCreditCard.isVisible = isCreditCard && hasCards
+        binding.tvCreditInfo.isVisible = isCreditCard && hasCards
+        binding.tvNoCards.isVisible = isCreditCard && !hasCards
+
+        if (!isCreditCard) {
+            selectedCreditCardId = null
+            binding.actvCreditCard.setText("")
+        }
+    }
+
+    // ── State binding ───────────────────────────────────────────────────────
+
     private fun bindState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                // UI State
                 launch {
                     viewModel.uiState.collect { state ->
                         when (state) {
-                            AddEditExpenseUiState.Idle -> Unit
-                            AddEditExpenseUiState.Saving -> binding.btnSaveExpense.isEnabled = false
+                            AddEditExpenseUiState.Idle    -> Unit
+                            AddEditExpenseUiState.Saving  -> binding.btnSaveExpense.isEnabled = false
                             is AddEditExpenseUiState.Saved -> {
                                 binding.btnSaveExpense.isEnabled = true
-                                Toast.makeText(requireContext(), "Expense saved", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(requireContext(), "Saved!", Toast.LENGTH_SHORT).show()
                                 viewModel.resetState()
                                 findNavController().navigateUp()
                             }
@@ -132,61 +155,71 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
                     }
                 }
 
+                // Accounts (non-CC real accounts)
                 launch {
                     viewModel.accounts.collect { accounts ->
-                        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, accounts.map { it.name })
-                        binding.actvAccount.setAdapter(adapter)
-                        binding.actvAccount.setOnItemClickListener { _, _, position, _ ->
-                            val account = accounts[position]
-                            selectedAccountId = account.id
-                            // Show credit card selection if "Credit Card" account is selected
-                            if (account.name.contains("Credit Card", ignoreCase = true)) {
-                                binding.tilCreditCard.visibility = android.view.View.VISIBLE
-                            } else {
-                                binding.tilCreditCard.visibility = android.view.View.GONE
-                                selectedCreditCardId = null
-                                binding.actvCreditCard.setText("")
-                            }
+                        // Filter out the generic "Credit Card" account — users pick real cards via the toggle
+                        accountsList = accounts.filter { a ->
+                            !a.name.equals("Credit Card", ignoreCase = true)
                         }
-                        
-                        // Default selection if new
-                        if (existingExpenseId <= 0L && selectedAccountId == -1L && accounts.isNotEmpty()) {
-                            binding.actvAccount.setText(accounts.first().name, false)
-                            selectedAccountId = accounts.first().id
+                        refreshAccountDropdown()
+
+                        // Auto-select first account for new entries
+                        if (existingExpenseId <= 0L && selectedAccountId == -1L && accountsList.isNotEmpty()) {
+                            selectedAccountId = accountsList.first().id
+                            binding.actvAccount.setText(
+                                "${accountsList.first().iconEmoji}  ${accountsList.first().name}", false
+                            )
                         }
                     }
                 }
 
+                // Credit Cards
                 launch {
                     viewModel.creditCards.collect { cards ->
-                        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cards.map { "${it.bankName} (${it.lastFourDigits})" })
-                        binding.actvCreditCard.setAdapter(adapter)
-                        binding.actvCreditCard.setOnItemClickListener { _, _, position, _ ->
-                            selectedCreditCardId = cards[position].id
+                        creditCardsList = cards
+                        refreshCreditCardDropdown()
+                        // Re-evaluate "no cards" message if card toggle is already selected
+                        if (paymentMethod == PaymentMethod.CREDIT_CARD) {
+                            updatePaymentUI(PaymentMethod.CREDIT_CARD)
                         }
                     }
                 }
 
+                // Categories
                 launch {
                     viewModel.categories.collect { cats ->
                         binding.cgCategory.removeAllViews()
-                        cats.forEach { category ->
-                            val chip = com.google.android.material.chip.Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Suggestion).apply {
+                        cats.filter { it.name != "CC Payment" }.forEach { category ->
+                            val chip = com.google.android.material.chip.Chip(
+                                requireContext(), null,
+                                com.google.android.material.R.style.Widget_Material3_Chip_Suggestion
+                            ).apply {
                                 id = category.id.toInt()
-                                text = "${category.name} ${category.iconEmoji}"
+                                text = "${category.iconEmoji} ${category.name}"
                                 isCheckable = true
-                                chipBackgroundColor = android.content.res.ColorStateList.valueOf(requireContext().getColor(R.color.surface2))
+                                chipBackgroundColor = android.content.res.ColorStateList.valueOf(
+                                    requireContext().getColor(R.color.surface2)
+                                )
                                 setTextColor(requireContext().getColor(R.color.text_secondary))
                                 chipStrokeWidth = 0f
                             }
                             binding.cgCategory.addView(chip)
                         }
-                        
-                        binding.cgCategory.setOnCheckedStateChangeListener { group, checkedIds ->
+                        binding.cgCategory.setOnCheckedStateChangeListener { _, checkedIds ->
                             if (checkedIds.isNotEmpty()) {
                                 selectedCategoryId = checkedIds.first().toLong()
-                                val category = cats.find { it.id == selectedCategoryId }
-                                binding.etCategory.setText(category?.name ?: "")
+                                binding.etCategory.setText(
+                                    cats.find { it.id == selectedCategoryId }?.name ?: ""
+                                )
+                            }
+                        }
+                        // Auto-select first category for new entry
+                        if (existingExpenseId <= 0L && selectedCategoryId == -1L) {
+                            val first = cats.firstOrNull { it.name != "CC Payment" }
+                            if (first != null) {
+                                selectedCategoryId = first.id
+                                (binding.cgCategory.getChildAt(0) as? com.google.android.material.chip.Chip)?.isChecked = true
                             }
                         }
                     }
@@ -194,6 +227,40 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
             }
         }
     }
+
+    private fun refreshAccountDropdown() {
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            accountsList.map { "${it.iconEmoji}  ${it.name}" }
+        )
+        binding.actvAccount.setAdapter(adapter)
+        binding.actvAccount.setOnItemClickListener { _, _, position, _ ->
+            selectedAccountId = accountsList[position].id
+        }
+    }
+
+    private fun refreshCreditCardDropdown() {
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            creditCardsList.map { "💳 ${it.bankName} — ${it.cardName} ••••${it.lastFourDigits}" }
+        )
+        binding.actvCreditCard.setAdapter(adapter)
+        binding.actvCreditCard.setOnItemClickListener { _, _, position, _ ->
+            selectedCreditCardId = creditCardsList[position].id
+        }
+        // Auto-select first card if only one exists
+        if (creditCardsList.size == 1 && selectedCreditCardId == null) {
+            selectedCreditCardId = creditCardsList.first().id
+            binding.actvCreditCard.setText(
+                "💳 ${creditCardsList.first().bankName} — ${creditCardsList.first().cardName} ••••${creditCardsList.first().lastFourDigits}",
+                false
+            )
+        }
+    }
+
+    // ── Load for edit ────────────────────────────────────────────────────────
 
     private fun loadExpense() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -206,13 +273,20 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
             selectedCategoryId = expense.categoryId
             selectedAccountId = expense.accountId
             selectedCreditCardId = expense.creditCardId
-            
             updateDateLabel()
             binding.etAmount.setText((expense.amountCents / 100.0).toString())
             binding.etNote.setText(expense.note)
-            
-            // Wait for category chips to be populated (could be better handled with State)
-            // For now, assume bindState handles it via Flow
+
+            // Restore payment method toggle
+            if (expense.transactionType == TransactionType.CREDIT && expense.creditCardId != null) {
+                paymentMethod = PaymentMethod.CREDIT_CARD
+                binding.togglePaymentMethod.check(R.id.btnPayCard)
+                updatePaymentUI(PaymentMethod.CREDIT_CARD)
+            } else {
+                paymentMethod = PaymentMethod.CASH
+                binding.togglePaymentMethod.check(R.id.btnPayCash)
+                updatePaymentUI(PaymentMethod.CASH)
+            }
         }
     }
 
@@ -220,36 +294,61 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
         binding.inputDate.setText(DateFormatter.formatMonthDayYear(dateMillis))
     }
 
-    private fun saveExpense() {
-        val amount = binding.etAmount.text?.toString()?.trim().orEmpty().toDoubleOrNull()
-        val note = binding.etNote.text?.toString()?.trim().orEmpty()
+    // ── Save ─────────────────────────────────────────────────────────────────
 
-        var hasError = false
+    private fun saveExpense() {
+        val amountStr = binding.etAmount.text?.toString()?.trim().orEmpty()
+        val amount = amountStr.toDoubleOrNull()
         if (amount == null || amount <= 0.0) {
             binding.tilAmount.error = getString(R.string.invalid_amount)
-            hasError = true
-        } else {
-            binding.tilAmount.error = null
+            return
         }
-        
+        binding.tilAmount.error = null
+
         if (selectedCategoryId == -1L) {
             Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show()
-            hasError = true
+            return
         }
-        
-        if (hasError) return
+
+        // Credit card specific validation
+        if (paymentMethod == PaymentMethod.CREDIT_CARD) {
+            if (creditCardsList.isEmpty()) {
+                Toast.makeText(requireContext(), "Please add a credit card first in Settings → Credit Cards", Toast.LENGTH_LONG).show()
+                return
+            }
+            if (selectedCreditCardId == null) {
+                Toast.makeText(requireContext(), "Please select which credit card you used", Toast.LENGTH_SHORT).show()
+                binding.actvCreditCard.requestFocus()
+                return
+            }
+        }
+
+        // For credit card payments we use a virtual account ID (the generic "Credit Card" account
+        // or the first available if it's absent — we just need a valid accountId for the FK).
+        val finalAccountId = if (paymentMethod == PaymentMethod.CREDIT_CARD) {
+            // Use the first account id as a placeholder FK — the credit card ID is the real reference
+            accountsList.firstOrNull()?.id ?: selectedAccountId
+        } else {
+            selectedAccountId
+        }
+
+        val transactionType = if (paymentMethod == PaymentMethod.CREDIT_CARD)
+            TransactionType.CREDIT else TransactionType.NORMAL
+
+        val note = binding.etNote.text?.toString()?.trim().orEmpty()
 
         viewModel.saveExpense(
             Expense(
-                id = existingExpenseId.takeIf { it > 0L } ?: 0L,
+                id = if (existingExpenseId > 0L) existingExpenseId else 0L,
                 type = "EXPENSE",
-                amountCents = ((amount ?: 0.0) * 100).toLong(),
+                amountCents = (amount * 100).toLong(),
                 categoryId = selectedCategoryId,
-                accountId = selectedAccountId,
+                accountId = finalAccountId,
                 creditCardId = selectedCreditCardId,
                 note = note.takeIf { it.isNotBlank() },
                 dateMillis = dateMillis,
-                createdAt = if (createdAt > 0) createdAt else System.currentTimeMillis()
+                createdAt = if (createdAt > 0) createdAt else System.currentTimeMillis(),
+                transactionType = transactionType
             ),
             isEdit = existingExpenseId > 0L
         )

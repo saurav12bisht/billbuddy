@@ -36,12 +36,22 @@ import androidx.room.PrimaryKey
 )
 data class ExpenseEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val type: String, // "INCOME" or "EXPENSE"
+    val type: String,                           // "INCOME" or "EXPENSE"
     val amountCents: Long,
     val categoryId: Long,
     val accountId: Long,
     val creditCardId: Long? = null,
     val note: String?,
     val dateMillis: Long,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    /**
+     * NORMAL  → Standard income / expense — counted immediately in reports.
+     * CREDIT  → Credit card spend — excluded from totals until the bill is paid.
+     */
+    val transactionType: String = TransactionType.NORMAL
 )
+
+object TransactionType {
+    const val NORMAL = "NORMAL"
+    const val CREDIT = "CREDIT"
+}

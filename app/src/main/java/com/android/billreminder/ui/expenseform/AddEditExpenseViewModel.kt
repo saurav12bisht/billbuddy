@@ -2,12 +2,14 @@ package com.android.billreminder.ui.expenseform
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.billreminder.data.local.entity.AccountEntity
+import com.android.billreminder.data.local.entity.CategoryEntity
+import com.android.billreminder.domain.model.CreditCard
 import com.android.billreminder.domain.model.Expense
+import com.android.billreminder.domain.repository.CreditCardRepository
 import com.android.billreminder.domain.repository.ExpenseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,12 +23,17 @@ sealed class AddEditExpenseUiState {
 @HiltViewModel
 class AddEditExpenseViewModel @Inject constructor(
     private val expenseRepository: ExpenseRepository,
-    private val creditCardRepository: com.android.billreminder.domain.repository.CreditCardRepository
+    private val creditCardRepository: CreditCardRepository
 ) : ViewModel() {
 
-    val accounts = expenseRepository.getAllAccounts()
-    val creditCards = creditCardRepository.getAllCreditCards()
-    val categories = expenseRepository.getAllCategories()
+    /** Accounts — fragment filters out the generic "Credit Card" account itself. */
+    val accounts: Flow<List<AccountEntity>> = expenseRepository.getAllAccounts()
+
+    /** All user-saved credit cards — shown when the "Card" payment toggle is active. */
+    val creditCards: Flow<List<CreditCard>> = creditCardRepository.getAllCreditCards()
+
+    /** Categories — fragment filters out "CC Payment" from user display. */
+    val categories: Flow<List<CategoryEntity>> = expenseRepository.getAllCategories()
 
     private val _uiState = MutableStateFlow<AddEditExpenseUiState>(AddEditExpenseUiState.Idle)
     val uiState: StateFlow<AddEditExpenseUiState> = _uiState.asStateFlow()
@@ -37,15 +44,15 @@ class AddEditExpenseViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = AddEditExpenseUiState.Saving
             try {
-                if (isEdit) {
+                val id = if (isEdit) {
                     expenseRepository.updateExpense(expense)
-                    _uiState.value = AddEditExpenseUiState.Saved(expense.id)
+                    expense.id
                 } else {
-                    val newId = expenseRepository.saveExpense(expense)
-                    _uiState.value = AddEditExpenseUiState.Saved(newId)
+                    expenseRepository.saveExpense(expense)
                 }
+                _uiState.value = AddEditExpenseUiState.Saved(id)
             } catch (e: Exception) {
-                _uiState.value = AddEditExpenseUiState.Error(e.message ?: "Failed to save expense")
+                _uiState.value = AddEditExpenseUiState.Error(e.message ?: "Failed to save")
             }
         }
     }

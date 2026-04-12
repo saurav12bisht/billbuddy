@@ -35,6 +35,7 @@
             android:orientation="vertical"
             android:padding="24dp">
 
+            <!-- Amount -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilAmount"
                 style="@style/Widget.BillBuddy.TextInputLayout"
@@ -66,6 +67,7 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
+                    <!-- Date -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilDate"
                         style="@style/Widget.BillBuddy.TextInputLayout"
@@ -107,6 +109,7 @@
                         </com.google.android.material.chip.ChipGroup>
                     </HorizontalScrollView>
 
+                    <!-- Hidden category autocomplete used as backing field -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilCategory"
                         android:layout_width="match_parent"
@@ -118,6 +121,7 @@
                             android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Note -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilNote"
                         style="@style/Widget.BillBuddy.TextInputLayout"
@@ -134,14 +138,67 @@
                             android:inputType="textCapSentences" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Account Selection -->
+                    <!-- ───────────────────────────────────────────────── -->
+                    <!--  PAYMENT METHOD SECTION                           -->
+                    <!-- ───────────────────────────────────────────────── -->
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="18dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="Payment Method"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <!-- Toggle: Cash/Bank/Credit Card -->
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/togglePaymentMethod"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPayCash"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="💵 Cash"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPayBank"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="🏦 Bank"
+                            android:textSize="12sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPayCard"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="💳 Card"
+                            android:textSize="12sp" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                    <!-- Bank Account Picker (shown for Cash / Bank) -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilAccount"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
-                        android:hint="Pay using">
+                        android:layout_marginTop="12dp"
+                        android:hint="Select Account">
 
                         <AutoCompleteTextView
                             android:id="@+id/actvAccount"
@@ -150,15 +207,18 @@
                             android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <!-- Credit Card Selection (Initially Gone) -->
+                    <!-- ───────────────────────────────────────────────── -->
+                    <!--  CREDIT CARD PICKER (shown ONLY when Card tapped) -->
+                    <!-- ───────────────────────────────────────────────── -->
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilCreditCard"
                         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="14dp"
+                        android:layout_marginTop="12dp"
+                        android:hint="Which credit card?"
                         android:visibility="gone"
-                        android:hint="Select Credit Card"
                         tools:visibility="visible">
 
                         <AutoCompleteTextView
@@ -167,6 +227,33 @@
                             android:layout_height="wrap_content"
                             android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Credit Info Banner -->
+                    <TextView
+                        android:id="@+id/tvCreditInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/bg_info_banner"
+                        android:fontFamily="@font/poppins_regular"
+                        android:padding="12dp"
+                        android:text="💡 This spend will be tracked under your credit card and counted as an expense only when you pay the bill."
+                        android:textColor="@color/accent_purple"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
+                    <!-- No cards message -->
+                    <TextView
+                        android:id="@+id/tvNoCards"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:padding="12dp"
+                        android:text="⚠️ No credit cards saved yet. Go to Settings → Credit Cards to add one."
+                        android:textColor="@color/expense_red"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

@@ -75,6 +75,9 @@ class ExpenseRepositoryImpl @Inject constructor(
     override fun getAllAccounts(): Flow<List<AccountEntity>> =
         accountDao.getAllAccounts().flowOn(io)
 
+    override fun getAccountsByType(type: String): Flow<List<AccountEntity>> =
+        accountDao.getAccountsByType(type).flowOn(io)
+
     override suspend fun insertAccount(account: AccountEntity): Long = withContext(io) {
         accountDao.insertAccount(account)
     }
@@ -83,6 +86,22 @@ class ExpenseRepositoryImpl @Inject constructor(
         accountDao.updateBalance(accountId, delta)
     }
 
+    override suspend fun deleteAccount(account: AccountEntity) = withContext(io) {
+        accountDao.deleteAccount(account)
+    }
+
     override fun getTotalAmountInRange(start: Long, end: Long): Flow<Long> =
         expenseDao.getTotalAmountInRange(start, end).flowOn(io)
+
+    override suspend fun getCategoryByName(name: String): CategoryEntity? = withContext(io) {
+        expenseDao.getCategoryByName(name)
+    }
+
+    override suspend fun getFirstCategory(): CategoryEntity? = withContext(io) {
+        expenseDao.getAllCategories().flowOn(io).let { flow ->
+            var result: CategoryEntity? = null
+            flow.collect { list -> result = list.firstOrNull(); return@collect }
+            result
+        }
+    }
 }

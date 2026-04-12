@@ -1,5 +1,6 @@
 package com.android.billreminder.domain.model
 
+import com.android.billreminder.data.local.entity.CreditCardBillEntity
 import com.android.billreminder.data.local.entity.CreditCardEntity
 
 data class CreditCard(
@@ -17,9 +18,12 @@ data class CreditCardBill(
     val cardId: Long,
     val billingCycleStartDate: Long,
     val billingCycleEndDate: Long,
+    val dueDateMillis: Long,
     val totalAmountCents: Long,
     val isPaid: Boolean = false,
-    val paidAt: Long? = null
+    val paidAt: Long? = null,
+    val paidFromAccountId: Long? = null,
+    val generatedExpenseId: Long? = null
 )
 
 fun CreditCardEntity.toDomain() = CreditCard(
@@ -40,4 +44,30 @@ fun CreditCard.toEntity() = CreditCardEntity(
     billingDay = billingDay,
     dueDay = dueDay,
     createdAt = createdAt
+)
+
+fun CreditCardBillEntity.toDomain() = CreditCardBill(
+    id = id,
+    cardId = cardId,
+    billingCycleStartDate = billingCycleStartDate,
+    billingCycleEndDate = billingCycleEndDate,
+    dueDateMillis = dueDateMillis,
+    totalAmountCents = totalAmountCents,
+    isPaid = isPaid,
+    paidAt = paidAt,
+    paidFromAccountId = paidFromAccountId,
+    generatedExpenseId = generatedExpenseId
+)
+
+fun CreditCardBill.toEntity() = CreditCardBillEntity(
+    id = id,
+    cardId = cardId,
+    billingCycleStartDate = billingCycleStartDate,
+    billingCycleEndDate = billingCycleEndDate,
+    dueDateMillis = dueDateMillis,
+    totalAmountCents = totalAmountCents,
+    isPaid = isPaid,
+    paidAt = paidAt,
+    paidFromAccountId = paidFromAccountId,
+    generatedExpenseId = generatedExpenseId
 )

@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -17,4 +18,16 @@ class AccountsViewModel @Inject constructor(
 
     val accounts: StateFlow<List<AccountEntity>> = repository.getAllAccounts()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun saveAccount(account: AccountEntity) {
+        viewModelScope.launch {
+            repository.insertAccount(account)
+        }
+    }
+
+    fun deleteAccount(account: AccountEntity) {
+        viewModelScope.launch {
+            repository.deleteAccount(account)
+        }
+    }
 }
