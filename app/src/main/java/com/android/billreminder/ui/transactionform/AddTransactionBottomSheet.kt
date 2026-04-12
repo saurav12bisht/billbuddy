@@ -152,8 +152,23 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                 launch {
                     // Update header title
                     if (viewModel.isEditMode) {
-                        // We need a reference to the sheet title if available in XML, or just change btn text
                         binding.btnSave.text = "Update Transaction"
+                    }
+                }
+
+                launch {
+                    viewModel.amount.collect { amt ->
+                        if (amt != null && binding.etAmount.text.toString() != amt) {
+                            binding.etAmount.setText(amt)
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.note.collect { note ->
+                        if (note != null && binding.etNote.text.toString() != note) {
+                            binding.etNote.setText(note)
+                        }
                     }
                 }
             }

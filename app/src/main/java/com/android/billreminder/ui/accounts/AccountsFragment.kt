@@ -40,7 +40,6 @@ class AccountsFragment : BaseFragment<FragmentAccountsBinding>(FragmentAccountsB
     private lateinit var adapter: WalletAdapter
 
     override fun onInit() {
-        applyTopInset(binding.appBarLayout)
         setupAdapter()
         observeState()
         setupFab()

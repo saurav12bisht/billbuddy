@@ -8,6 +8,9 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.SystemBarStyle
+import android.graphics.Color as AndroidColor
 import com.android.billreminder.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,12 +26,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(AndroidColor.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT)
+        )
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // Enable edge-to-edge
-        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -36,17 +40,20 @@ class MainActivity : AppCompatActivity() {
 
         binding.bottomNavigation.setupWithNavController(navController)
 
-        // Handle Bottom Navigation Insets
-        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation) { v, insets ->
+        // Handle Custom Status Bar View + NavHost Insets
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, 0, 0, systemBars.bottom)
-            insets
-        }
+            
+            // 1. Status bar background view height
+            binding.vStatusBar.layoutParams.height = systemBars.top
+            binding.vStatusBar.requestLayout()
 
-        // Global Inset Handling for NavHost (Baseline compatibility)
-        ViewCompat.setOnApplyWindowInsetsListener(binding.navHostFragment) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, systemBars.top, 0, 0) // Always pad top for status bar
+            // 2. NavHost padding (keep it below status bar)
+            binding.navHostFragment.setPadding(0, systemBars.top, 0, 0)
+            
+            // 3. Bottom nav padding
+            binding.bottomNavigation.setPadding(0, 0, 0, systemBars.bottom)
+            
             insets
         }
 
@@ -77,14 +84,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupStatusBar() {
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-        // Set status bar color to transparent for edge-to-edge, content will draw behind it
-        window.statusBarColor = getColor(android.R.color.transparent)
-        WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = true
-        }
-    }
 
 //    override fun onBackPressedDispatcher() {
 //        super.onBackPressedDispatcher()

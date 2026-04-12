@@ -31,7 +31,6 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
     private var hintTriggered = false
 
     override fun onInit() {
-        applyTopInset(binding.clToolbar)
         setupRecyclerView()
         setupListeners()
         observeState()

@@ -53,6 +53,12 @@ class AddTransactionViewModel @Inject constructor(
     private val _selectedBankAccountId = MutableStateFlow<Long?>(null)
     val selectedBankAccountId: StateFlow<Long?> = _selectedBankAccountId.asStateFlow()
 
+    private val _amount = MutableStateFlow<String?>(null)
+    val amount: StateFlow<String?> = _amount.asStateFlow()
+
+    private val _note = MutableStateFlow<String?>(null)
+    val note: StateFlow<String?> = _note.asStateFlow()
+
     private var editingTransactionId: Long? = null
     private var originalTransaction: ExpenseEntity? = null
 
@@ -87,6 +93,8 @@ class AddTransactionViewModel @Inject constructor(
             _type.value = expense.type
             _date.value = LocalDate.ofInstant(java.time.Instant.ofEpochMilli(expense.dateMillis), ZoneId.systemDefault())
             _selectedCategoryId.value = expense.categoryId
+            _amount.value = com.android.billreminder.ui.common.util.CurrencyFormatter.formatPaiseToRupeeWithoutSymbol(expense.amountCents)
+            _note.value = expense.note
             
             // Payment method logic
             val isCredit = expense.transactionType == TransactionType.CREDIT
@@ -190,6 +198,8 @@ class AddTransactionViewModel @Inject constructor(
                     val newDelta = if (expense.type == "INCOME") amount else -amount
                     repository.updateAccountBalance(finalAccountId, newDelta)
                 }
+
+                repository.insertTransaction(expense)
 
             } else {
                 repository.insertTransaction(expense)
