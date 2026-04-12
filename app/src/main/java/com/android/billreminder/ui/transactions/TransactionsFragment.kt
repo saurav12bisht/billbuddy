@@ -14,8 +14,8 @@ import com.android.billreminder.R
 import com.android.billreminder.databinding.FragmentTransactionsBinding
 import com.android.billreminder.ui.common.BaseFragment
 import com.android.billreminder.ui.common.util.CurrencyFormatter
+import com.android.billreminder.ui.common.util.SwipeHintHelper
 import com.google.android.material.snackbar.Snackbar
-import com.android.billreminder.data.local.entity.ExpenseWithCategory
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
@@ -26,6 +26,10 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
     private val viewModel: TransactionsViewModel by viewModels()
     private lateinit var adapter: TransactionsAdapter
 
+    // Guard so the swipe hint is only triggered once per fragment session
+    // (SwipeHintHelper itself guards across app sessions via SharedPreferences)
+    private var hintTriggered = false
+
     override fun onInit() {
         applyTopInset(binding.clToolbar)
         setupRecyclerView()
@@ -33,43 +37,69 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
         observeState()
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // RecyclerView + swipe-to-delete
+    // ─────────────────────────────────────────────────────────────────────────
+
     private fun setupRecyclerView() {
-        adapter = TransactionsAdapter { row ->
-            if (row is TransactionListItem.TransactionRow) {
-                val bundle = Bundle().apply {
-                    putLong("transactionId", row.item.expense.id)
-                }
-                findNavController().navigate(R.id.addTransactionBottomSheet, bundle)
+        adapter = TransactionsAdapter { item ->
+            val bundle = Bundle().apply {
+                putLong("transactionId", item.expense.id)
             }
+            findNavController().navigate(R.id.addTransactionBottomSheet, bundle)
         }
+
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = adapter
 
-        // Swipe to delete
-        val swipeHandler = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
-            
-            override fun getSwipeDirs(rv: RecyclerView, vh: RecyclerView.ViewHolder): Int {
+        attachSwipeToDelete()
+    }
+
+    private fun attachSwipeToDelete() {
+        val swipeHandler = object : ItemTouchHelper.SimpleCallback(
+            /* dragDirs  = */ 0,
+            /* swipeDirs = */ ItemTouchHelper.LEFT
+        ) {
+            override fun onMove(
+                rv: RecyclerView,
+                vh: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ) = false   // no drag-and-drop
+
+            // Disable swipe on day-header rows
+            override fun getSwipeDirs(
+                rv: RecyclerView,
+                vh: RecyclerView.ViewHolder
+            ): Int {
                 if (vh is TransactionsAdapter.HeaderViewHolder) return 0
                 return super.getSwipeDirs(rv, vh)
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                val item = adapter.currentList[position]
-                if (item is TransactionListItem.TransactionRow) {
-                    val expense = item.item.expense
-                    viewModel.deleteTransaction(expense)
-                    
-                    Snackbar.make(binding.root, "Transaction deleted", Snackbar.LENGTH_LONG)
-                        .setAction("UNDO") {
-                            // Logic to re-insert would go here if repository supported it easily
-                        }.show()
-                }
+                val position = viewHolder.bindingAdapterPosition
+                if (position == RecyclerView.NO_ID.toInt()) return
+
+                val item = adapter.currentList.getOrNull(position) ?: return
+                if (item !is TransactionListItem.TransactionRow) return
+
+                val expense = item.item.expense
+                viewModel.deleteTransaction(expense)
+
+                Snackbar.make(binding.root, "Transaction deleted", Snackbar.LENGTH_LONG)
+                    .setAction("UNDO") {
+                        // Wire up undo via ViewModel if the repository supports re-insert
+  //                      viewModel.undoDelete(expense)
+                    }
+                    .show()
             }
         }
+
         ItemTouchHelper(swipeHandler).attachToRecyclerView(binding.rvTransactions)
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Toolbar listeners
+    // ─────────────────────────────────────────────────────────────────────────
 
     private fun setupListeners() {
         binding.btnPrevMonth.setOnClickListener { viewModel.previousMonth() }
@@ -80,30 +110,72 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
         }
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // State observation
+    // ─────────────────────────────────────────────────────────────────────────
+
     private fun observeState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                // Month label in toolbar
                 launch {
                     viewModel.currentMonth.collect { ym ->
-                        binding.tvDateTitle.text = ym.format(DateTimeFormatter.ofPattern("MMM yyyy"))
-                    }
-                }
-                
-                launch {
-                    viewModel.monthlyTotals.collect { totals ->
-                        binding.tvTotalIncome.text = CurrencyFormatter.formatUsdCents(totals.totalIncome)
-                        binding.tvTotalExpense.text = CurrencyFormatter.formatUsdCents(totals.totalExpense)
-                        binding.tvMonthlyNetTotal.text = CurrencyFormatter.formatUsdCents(totals.totalIncome - totals.totalExpense)
+                        binding.tvDateTitle.text =
+                            ym.format(DateTimeFormatter.ofPattern("MMM yyyy"))
                     }
                 }
 
+                // Income / expense / net totals
+                launch {
+                    viewModel.monthlyTotals.collect { totals ->
+                        binding.tvTotalIncome.text =
+                            CurrencyFormatter.formatUsdCents(totals.totalIncome)
+                        binding.tvTotalExpense.text =
+                            CurrencyFormatter.formatUsdCents(totals.totalExpense)
+                        binding.tvMonthlyNetTotal.text =
+                            CurrencyFormatter.formatUsdCents(totals.totalIncome - totals.totalExpense)
+                    }
+                }
+
+                // Transaction list
                 launch {
                     viewModel.groupedTransactions.collect { items ->
-                        adapter.submitList(items)
-                        binding.llEmpty.visibility = if (items.isEmpty()) View.VISIBLE else View.GONE
+                        adapter.submitList(items) {
+                            // submitList callback fires once DiffUtil has finished
+                            // and the new list is fully rendered — safe to show hint.
+                            handleSwipeHint(items)
+                        }
+
+                        binding.llEmpty.visibility =
+                            if (items.isEmpty()) View.VISIBLE else View.GONE
                     }
                 }
             }
         }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Swipe hint — first-time user education
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Triggers a one-time animated hint that slides the first transaction row
+     * to the left so the user discovers the swipe-to-delete gesture naturally.
+     *
+     * Guards:
+     *  • [hintTriggered]           – prevents re-triggering within the same
+     *                                fragment session (e.g. month changes).
+     *  • [SwipeHintHelper.isAlreadyShown] – prevents re-triggering across
+     *                                sessions (stored in SharedPreferences).
+     *  • items.isEmpty()           – only runs when there are actual rows.
+     */
+    private fun handleSwipeHint(items: List<TransactionListItem>) {
+        if (hintTriggered) return
+        if (items.isEmpty()) return
+        if (SwipeHintHelper.isAlreadyShown(requireContext())) return
+
+        hintTriggered = true
+        SwipeHintHelper.showIfNeeded(requireContext(), binding.rvTransactions)
     }
 }

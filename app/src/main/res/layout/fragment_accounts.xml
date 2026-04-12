@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_screen">
 
-    <!-- Hero Balance Card -->
+    <!-- ── Collapsing AppBar ──────────────────────────────────────────────── -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
@@ -18,40 +19,107 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="12dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- ── Title row ─────────────────────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_bold"
-                android:text="Wallet Hub"
-                android:textColor="@color/text_title_slate"
-                android:textSize="26sp"
-                android:letterSpacing="-0.02" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
 
-            <!-- Redesigned Hero Card -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Wallet"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="26sp"
+                        android:textColor="@color/text_title_slate"
+                        android:letterSpacing="-0.02" />
+
+                    <TextView
+                        android:id="@+id/tvNumAccounts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_secondary"
+                        tools:text="8 linked sources" />
+
+                </LinearLayout>
+
+                <!-- Add button in toolbar for quick access -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fabAdd"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/outline_add_24"
+                    app:iconSize="22dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:backgroundTint="@color/primary"
+                    app:iconTint="@color/white"
+                    app:cornerRadius="14dp" />
+
+            </LinearLayout>
+
+            <!-- ── Hero Balance Card ──────────────────────────────────────── -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginTop="16dp"
+                android:layout_height="150dp"
+                android:layout_marginTop="14dp"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="8dp">
+                app:cardElevation="10dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_wallet_hero"
-                    android:padding="24dp">
+                    android:padding="22dp">
+
+                    <!-- Decorative circle top-right -->
+                    <View
+                        android:layout_width="110dp"
+                        android:layout_height="110dp"
+                        android:background="@drawable/search_bg"
+                        android:alpha="0.15"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:translationX="30dp"
+                        android:translationY="-30dp" />
+
+                    <!-- Decorative circle bottom-right -->
+                    <View
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:background="@drawable/search_bg"
+                        android:alpha="0.10"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:translationX="-10dp"
+                        android:translationY="20dp" />
 
                     <TextView
                         android:id="@+id/tvLabelTotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:text="NET WEALTH"
                         android:fontFamily="@font/poppins_medium"
-                        android:text="Net Wealth"
+                        android:textSize="10sp"
                         android:textColor="@color/white_70"
-                        android:textSize="12sp"
-                        android:letterSpacing="0.05"
+                        android:letterSpacing="0.12"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -61,58 +129,171 @@
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/poppins_bold"
                         android:textColor="@color/white"
-                        android:textSize="32sp"
-                        android:letterSpacing="-0.01"
+                        android:textSize="34sp"
+                        android:letterSpacing="-0.02"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/tvLabelTotal"
+                        app:layout_constraintTop_toBottomOf="@id/tvLabelTotal"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintVertical_bias="0.4"
                         tools:text="₹ 12,45,000" />
 
-                    <View
-                        android:layout_width="40dp"
-                        android:layout_height="24dp"
-                        android:background="@drawable/bg_handle"
-                        android:backgroundTint="@color/glass_white_20"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent" />
-
+                    <!-- Pill badge: accounts count -->
                     <TextView
-                        android:id="@+id/tvNumAccounts"
+                        android:id="@+id/tvHeroAccountsBadge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_regular"
-                        android:textColor="@color/white_70"
-                        android:textSize="12sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="10dp"
+                        android:paddingTop="3dp"
+                        android:paddingBottom="3dp"
+                        android:background="@drawable/search_bg"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
                         app:layout_constraintStart_toStartOf="parent"
-                        tools:text="8 linked sources" />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        tools:text="8 accounts" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- ── Quick-glance summary strip ────────────────────────────── -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="12dp"
+                android:weightSum="3">
+
+                <!-- Cash pill -->
+                <LinearLayout
+                    android:id="@+id/llSummaryCash"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="5dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/search_bg"
+                    android:padding="10dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💵"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cash"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="2dp" />
+
+                    <TextView
+                        android:id="@+id/tvSummaryCash"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="₹1,200" />
+
+                </LinearLayout>
+
+                <!-- Bank pill -->
+                <LinearLayout
+                    android:id="@+id/llSummaryBank"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/search_bg"
+                    android:padding="10dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🏦"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Banks"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="2dp" />
+
+                    <TextView
+                        android:id="@+id/tvSummaryBank"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_primary"
+                        tools:text="₹9,800" />
+
+                </LinearLayout>
+
+                <!-- Credit pill -->
+                <LinearLayout
+                    android:id="@+id/llSummaryCredit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/search_bg"
+                    android:padding="10dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="💳"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Credit"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_secondary"
+                        android:layout_marginTop="2dp" />
+
+                    <TextView
+                        android:id="@+id/tvSummaryCredit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:textSize="12sp"
+                        android:textColor="@color/expense_red"
+                        tools:text="-₹3,456" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- ── Main list ─────────────────────────────────────────────────────── -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWallet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:paddingBottom="80dp"
-        android:layoutAnimation="@anim/layout_anim_staggered"
+        android:paddingBottom="32dp"
+        android:paddingTop="4dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:listitem="@layout/item_wallet_group_header" />
-
-    <!-- FAB: Add Account (visible only on Accounts tab) -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fabAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="20dp"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="Add"
-        android:textColor="@color/white"
-        app:backgroundTint="@color/primary"
-        app:icon="@drawable/outline_add_24"
-        app:iconTint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
