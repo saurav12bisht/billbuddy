@@ -19,9 +19,11 @@ import kotlinx.coroutines.launch
         BillEntity::class, 
         ExpenseEntity::class, 
         CategoryEntity::class, 
-        AccountEntity::class
+        AccountEntity::class,
+        CreditCardEntity::class,
+        CreditCardBillEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class VyapaarDatabase : RoomDatabase() {
@@ -30,6 +32,7 @@ abstract class VyapaarDatabase : RoomDatabase() {
     abstract fun billDao(): BillDao
     abstract fun expenseDao(): ExpenseDao
     abstract fun accountDao(): AccountDao
+    abstract fun creditCardDao(): CreditCardDao
 
     companion object {
         @Volatile
@@ -42,7 +45,7 @@ abstract class VyapaarDatabase : RoomDatabase() {
                     VyapaarDatabase::class.java,
                     "vyapaar_db"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     .addCallback(DatabaseCallback())
                     .build()
                     .also { INSTANCE = it }
@@ -181,5 +184,68 @@ private val MIGRATION_3_4 = object : Migration(3, 4) {
         db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_dateMillis ON expenses(dateMillis)")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_categoryId ON expenses(categoryId)")
         db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_accountId ON expenses(accountId)")
+    }
+}
+
+private val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // 1. Create credit_cards table
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS credit_cards (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                cardName TEXT NOT NULL,
+                bankName TEXT NOT NULL,
+                lastFourDigits TEXT NOT NULL,
+                billingDay INTEGER NOT NULL,
+                dueDay INTEGER NOT NULL,
+                createdAt INTEGER NOT NULL
+            )
+        """)
+
+        // 2. Create credit_card_bills table
+        db.execSQL("""
+            CREATE TABLE IF NOT EXISTS credit_card_bills (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                cardId INTEGER NOT NULL,
+                billingCycleStartDate INTEGER NOT NULL,
+                billingCycleEndDate INTEGER NOT NULL,
+                totalAmountCents INTEGER NOT NULL,
+                isPaid INTEGER NOT NULL,
+                paidAt INTEGER,
+                FOREIGN KEY(cardId) REFERENCES credit_cards(id) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+        """)
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_credit_card_bills_cardId ON credit_card_bills(cardId)")
+
+        // 3. Add creditCardId to expenses
+        db.execSQL("""
+            CREATE TABLE expenses_new (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                type TEXT NOT NULL,
+                amountCents INTEGER NOT NULL,
+                categoryId INTEGER NOT NULL,
+                accountId INTEGER NOT NULL,
+                creditCardId INTEGER,
+                note TEXT,
+                dateMillis INTEGER NOT NULL,
+                createdAt INTEGER NOT NULL,
+                FOREIGN KEY(categoryId) REFERENCES categories(id) ON UPDATE NO ACTION ON DELETE CASCADE,
+                FOREIGN KEY(accountId) REFERENCES accounts(id) ON UPDATE NO ACTION ON DELETE CASCADE,
+                FOREIGN KEY(creditCardId) REFERENCES credit_cards(id) ON UPDATE NO ACTION ON DELETE SET NULL
+            )
+        """)
+
+        db.execSQL("""
+            INSERT INTO expenses_new (id, type, amountCents, categoryId, accountId, creditCardId, note, dateMillis, createdAt)
+            SELECT id, type, amountCents, categoryId, accountId, NULL, note, dateMillis, createdAt FROM expenses
+        """)
+
+        db.execSQL("DROP TABLE expenses")
+        db.execSQL("ALTER TABLE expenses_new RENAME TO expenses")
+
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_dateMillis ON expenses(dateMillis)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_categoryId ON expenses(categoryId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_accountId ON expenses(accountId)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_expenses_creditCardId ON expenses(creditCardId)")
     }
 }

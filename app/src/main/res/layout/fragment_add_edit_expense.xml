@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background">
@@ -131,6 +132,40 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textCapSentences" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Account Selection -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilAccount"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:hint="Pay using">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actvAccount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Credit Card Selection (Initially Gone) -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/tilCreditCard"
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:visibility="gone"
+                        android:hint="Select Credit Card"
+                        tools:visibility="visible">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actvCreditCard"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>

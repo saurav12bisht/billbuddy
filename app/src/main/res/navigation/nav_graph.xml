@@ -93,4 +93,41 @@
         android:label="@string/settings"
         tools:layout="@layout/fragment_settings" />
 
+    <!-- Credit Card Module -->
+    <fragment
+        android:id="@+id/creditCardListFragment"
+        android:name="com.android.billreminder.ui.creditcards.CreditCardListFragment"
+        android:label="Credit Cards"
+        tools:layout="@layout/fragment_credit_card_list">
+        <action
+            android:id="@+id/action_creditCardList_to_addEdit"
+            app:destination="@id/addEditCreditCardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addEditCreditCardFragment"
+        android:name="com.android.billreminder.ui.creditcards.AddEditCreditCardFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_add_edit_credit_card">
+        <argument
+            android:name="cardId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue="Add Credit Card" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addEditExpenseFragment"
+        android:name="com.android.billreminder.ui.expenseform.AddEditExpenseFragment"
+        android:label="Add Expense"
+        tools:layout="@layout/fragment_add_edit_expense">
+        <argument
+            android:name="expenseId"
+            app:argType="long"
+            android:defaultValue="-1L" />
+    </fragment>
+
 </navigation>

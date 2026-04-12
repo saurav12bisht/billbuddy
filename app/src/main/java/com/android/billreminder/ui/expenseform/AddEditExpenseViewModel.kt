@@ -20,8 +20,13 @@ sealed class AddEditExpenseUiState {
 
 @HiltViewModel
 class AddEditExpenseViewModel @Inject constructor(
-    private val expenseRepository: ExpenseRepository
+    private val expenseRepository: ExpenseRepository,
+    private val creditCardRepository: com.android.billreminder.domain.repository.CreditCardRepository
 ) : ViewModel() {
+
+    val accounts = expenseRepository.getAllAccounts()
+    val creditCards = creditCardRepository.getAllCreditCards()
+    val categories = expenseRepository.getAllCategories()
 
     private val _uiState = MutableStateFlow<AddEditExpenseUiState>(AddEditExpenseUiState.Idle)
     val uiState: StateFlow<AddEditExpenseUiState> = _uiState.asStateFlow()

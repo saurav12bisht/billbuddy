@@ -26,6 +26,9 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
     private var dateMillis: Long = System.currentTimeMillis()
     private var existingExpenseId: Long = -1L
     private var createdAt: Long = 0L
+    private var selectedCategoryId: Long = -1L
+    private var selectedAccountId: Long = -1L
+    private var selectedCreditCardId: Long? = null
 
     override fun onInit() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
@@ -109,20 +112,82 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
     private fun bindState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    when (state) {
-                        AddEditExpenseUiState.Idle -> Unit
-                        AddEditExpenseUiState.Saving -> binding.btnSaveExpense.isEnabled = false
-                        is AddEditExpenseUiState.Saved -> {
-                            binding.btnSaveExpense.isEnabled = true
-                            Toast.makeText(requireContext(), "Expense saved", Toast.LENGTH_SHORT).show()
-                            viewModel.resetState()
-                            findNavController().navigateUp()
+                launch {
+                    viewModel.uiState.collect { state ->
+                        when (state) {
+                            AddEditExpenseUiState.Idle -> Unit
+                            AddEditExpenseUiState.Saving -> binding.btnSaveExpense.isEnabled = false
+                            is AddEditExpenseUiState.Saved -> {
+                                binding.btnSaveExpense.isEnabled = true
+                                Toast.makeText(requireContext(), "Expense saved", Toast.LENGTH_SHORT).show()
+                                viewModel.resetState()
+                                findNavController().navigateUp()
+                            }
+                            is AddEditExpenseUiState.Error -> {
+                                binding.btnSaveExpense.isEnabled = true
+                                Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
+                                viewModel.resetState()
+                            }
                         }
-                        is AddEditExpenseUiState.Error -> {
-                            binding.btnSaveExpense.isEnabled = true
-                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
-                            viewModel.resetState()
+                    }
+                }
+
+                launch {
+                    viewModel.accounts.collect { accounts ->
+                        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, accounts.map { it.name })
+                        binding.actvAccount.setAdapter(adapter)
+                        binding.actvAccount.setOnItemClickListener { _, _, position, _ ->
+                            val account = accounts[position]
+                            selectedAccountId = account.id
+                            // Show credit card selection if "Credit Card" account is selected
+                            if (account.name.contains("Credit Card", ignoreCase = true)) {
+                                binding.tilCreditCard.visibility = android.view.View.VISIBLE
+                            } else {
+                                binding.tilCreditCard.visibility = android.view.View.GONE
+                                selectedCreditCardId = null
+                                binding.actvCreditCard.setText("")
+                            }
+                        }
+                        
+                        // Default selection if new
+                        if (existingExpenseId <= 0L && selectedAccountId == -1L && accounts.isNotEmpty()) {
+                            binding.actvAccount.setText(accounts.first().name, false)
+                            selectedAccountId = accounts.first().id
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.creditCards.collect { cards ->
+                        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, cards.map { "${it.bankName} (${it.lastFourDigits})" })
+                        binding.actvCreditCard.setAdapter(adapter)
+                        binding.actvCreditCard.setOnItemClickListener { _, _, position, _ ->
+                            selectedCreditCardId = cards[position].id
+                        }
+                    }
+                }
+
+                launch {
+                    viewModel.categories.collect { cats ->
+                        binding.cgCategory.removeAllViews()
+                        cats.forEach { category ->
+                            val chip = com.google.android.material.chip.Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Suggestion).apply {
+                                id = category.id.toInt()
+                                text = "${category.name} ${category.iconEmoji}"
+                                isCheckable = true
+                                chipBackgroundColor = android.content.res.ColorStateList.valueOf(requireContext().getColor(R.color.surface2))
+                                setTextColor(requireContext().getColor(R.color.text_secondary))
+                                chipStrokeWidth = 0f
+                            }
+                            binding.cgCategory.addView(chip)
+                        }
+                        
+                        binding.cgCategory.setOnCheckedStateChangeListener { group, checkedIds ->
+                            if (checkedIds.isNotEmpty()) {
+                                selectedCategoryId = checkedIds.first().toLong()
+                                val category = cats.find { it.id == selectedCategoryId }
+                                binding.etCategory.setText(category?.name ?: "")
+                            }
                         }
                     }
                 }
@@ -138,18 +203,16 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
             }
             createdAt = expense.createdAt
             dateMillis = expense.dateMillis
+            selectedCategoryId = expense.categoryId
+            selectedAccountId = expense.accountId
+            selectedCreditCardId = expense.creditCardId
+            
             updateDateLabel()
             binding.etAmount.setText((expense.amountCents / 100.0).toString())
-            binding.etCategory.setText(expense.categoryId.toString(), false)
             binding.etNote.setText(expense.note)
             
-            for (i in 0 until binding.cgCategory.childCount) {
-                val chip = binding.cgCategory.getChildAt(i) as? com.google.android.material.chip.Chip
-                if (chip?.text?.toString().equals(expense.categoryId.toString(), ignoreCase = true)) {
-                    chip?.isChecked = true
-                    break
-                }
-            }
+            // Wait for category chips to be populated (could be better handled with State)
+            // For now, assume bindState handles it via Flow
         }
     }
 
@@ -159,7 +222,6 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
 
     private fun saveExpense() {
         val amount = binding.etAmount.text?.toString()?.trim().orEmpty().toDoubleOrNull()
-        val category = binding.etCategory.text?.toString()?.trim().orEmpty()
         val note = binding.etNote.text?.toString()?.trim().orEmpty()
 
         var hasError = false
@@ -169,24 +231,27 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(Fragm
         } else {
             binding.tilAmount.error = null
         }
-        if (category.isBlank()) {
-            binding.tilCategory.error = getString(R.string.required_field)
+        
+        if (selectedCategoryId == -1L) {
+            Toast.makeText(requireContext(), "Please select a category", Toast.LENGTH_SHORT).show()
             hasError = true
-        } else {
-            binding.tilCategory.error = null
         }
+        
         if (hasError) return
 
-//        viewModel.saveExpense(
-//            Expense(
-//                id = existingExpenseId.takeIf { it > 0L } ?: 0L,
-//                amountCents = ((amount ?: 0.0) * 100).toLong(),
-//                category = category,
-//                dateMillis = dateMillis,
-//                note = note.takeIf { it.isNotBlank() },
-//                createdAt = createdAt
-//            ),
-//            isEdit = existingExpenseId > 0L
-//        )
+        viewModel.saveExpense(
+            Expense(
+                id = existingExpenseId.takeIf { it > 0L } ?: 0L,
+                type = "EXPENSE",
+                amountCents = ((amount ?: 0.0) * 100).toLong(),
+                categoryId = selectedCategoryId,
+                accountId = selectedAccountId,
+                creditCardId = selectedCreditCardId,
+                note = note.takeIf { it.isNotBlank() },
+                dateMillis = dateMillis,
+                createdAt = if (createdAt > 0) createdAt else System.currentTimeMillis()
+            ),
+            isEdit = existingExpenseId > 0L
+        )
     }
 }

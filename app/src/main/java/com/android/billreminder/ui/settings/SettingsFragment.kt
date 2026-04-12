@@ -11,6 +11,7 @@ import com.android.billreminder.R
 import com.android.billreminder.databinding.FragmentSettingsBinding
 import com.android.billreminder.ui.common.BaseFragment
 import com.android.billreminder.ui.common.util.AdManager
+import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -43,6 +44,10 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>(FragmentSettingsB
                     Toast.makeText(requireContext(), "PDF export unlock is wired. Generator is next.", Toast.LENGTH_SHORT).show()
                 }
             )
+        }
+
+        binding.cardCreditCards.setOnClickListener {
+            findNavController().navigate(R.id.creditCardListFragment)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {

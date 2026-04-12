@@ -10,7 +10,8 @@ import androidx.room.PrimaryKey
     indices = [
         Index("dateMillis"),
         Index("categoryId"),
-        Index("accountId")
+        Index("accountId"),
+        Index("creditCardId")
     ],
     foreignKeys = [
         ForeignKey(
@@ -24,6 +25,12 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["accountId"],
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = CreditCardEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["creditCardId"],
+            onDelete = ForeignKey.SET_NULL
         )
     ]
 )
@@ -33,6 +40,7 @@ data class ExpenseEntity(
     val amountCents: Long,
     val categoryId: Long,
     val accountId: Long,
+    val creditCardId: Long? = null,
     val note: String?,
     val dateMillis: Long,
     val createdAt: Long = System.currentTimeMillis()

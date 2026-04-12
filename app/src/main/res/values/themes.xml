@@ -73,4 +73,10 @@
     </style>
     <style name="ShapeAppearance.Vyapaar.Medium" parent="ShapeAppearance.Paydrift.Medium" />
     <style name="Widget.BillBuddy.GradientButton" parent="Widget.Paydrift.Button" />
+
+    <style name="ToolbarTitleTextAppearance" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
 </resources>

@@ -57,5 +57,7 @@
     <color name="gradient_start">#E85D4A</color>
     <color name="gradient_end">#FF867A</color>
     <color name="bill_swipe_delete">#E85D4A</color>
-    <color name="urgent_error">#E85D4A</color>
+    <color name="urgent_error">@color/expense_red</color>
+    <color name="accent_purple">#7E57C2</color>
+    <color name="error_red">#E53935</color>
 </resources>

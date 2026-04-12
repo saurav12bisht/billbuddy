@@ -35,4 +35,7 @@ object DatabaseModule {
 
     @Provides
     fun provideAccountDao(db: VyapaarDatabase): com.android.billreminder.data.local.dao.AccountDao = db.accountDao()
+
+    @Provides
+    fun provideCreditCardDao(db: VyapaarDatabase): com.android.billreminder.data.local.dao.CreditCardDao = db.creditCardDao()
 }

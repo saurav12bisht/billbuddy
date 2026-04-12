@@ -8,6 +8,7 @@ data class Expense(
     val amountCents: Long,
     val categoryId: Long,
     val accountId: Long,
+    val creditCardId: Long? = null,
     val note: String?,
     val dateMillis: Long,
     val createdAt: Long = System.currentTimeMillis()
@@ -19,6 +20,7 @@ fun ExpenseEntity.toDomain() = Expense(
     amountCents = amountCents,
     categoryId = categoryId,
     accountId = accountId,
+    creditCardId = creditCardId,
     note = note,
     dateMillis = dateMillis,
     createdAt = createdAt
@@ -30,6 +32,7 @@ fun Expense.toEntity() = ExpenseEntity(
     amountCents = amountCents,
     categoryId = categoryId,
     accountId = accountId,
+    creditCardId = creditCardId,
     note = note,
     dateMillis = dateMillis,
     createdAt = createdAt

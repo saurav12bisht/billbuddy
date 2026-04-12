@@ -17,4 +17,10 @@ abstract class RepositoryModule {
     abstract fun bindExpenseRepository(
         expenseRepositoryImpl: ExpenseRepositoryImpl
     ): ExpenseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCreditCardRepository(
+        creditCardRepositoryImpl: com.android.billreminder.data.repository.CreditCardRepositoryImpl
+    ): com.android.billreminder.domain.repository.CreditCardRepository
 }
