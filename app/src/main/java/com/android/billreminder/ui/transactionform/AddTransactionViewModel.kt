@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billreminder.data.local.entity.AccountEntity
 import com.android.billreminder.data.local.entity.CategoryEntity
+import com.android.billreminder.data.local.entity.CreditCardBillEntity
+import com.android.billreminder.data.local.entity.CreditCardEntity
 import com.android.billreminder.data.local.entity.ExpenseEntity
 import com.android.billreminder.data.local.entity.TransactionType
 import com.android.billreminder.domain.model.CreditCard
 import com.android.billreminder.domain.repository.CreditCardRepository
 import com.android.billreminder.domain.repository.ExpenseRepository
+import com.android.billreminder.domain.model.toDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -50,6 +53,11 @@ class AddTransactionViewModel @Inject constructor(
     private val _selectedBankAccountId = MutableStateFlow<Long?>(null)
     val selectedBankAccountId: StateFlow<Long?> = _selectedBankAccountId.asStateFlow()
 
+    private var editingTransactionId: Long? = null
+    private var originalTransaction: ExpenseEntity? = null
+
+    val isEditMode: Boolean get() = editingTransactionId != null
+
     val categories: StateFlow<List<CategoryEntity>> = repository.getAllCategories()
         .map { it.filter { cat -> cat.name != "CC Payment" } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -69,6 +77,45 @@ class AddTransactionViewModel @Inject constructor(
 
     val creditCards: StateFlow<List<CreditCard>> = creditCardRepository.getAllCreditCards()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun loadTransaction(id: Long) {
+        viewModelScope.launch {
+            val expense = repository.getExpenseByIdEntity(id) ?: return@launch
+            editingTransactionId = id
+            originalTransaction = expense
+            
+            _type.value = expense.type
+            _date.value = LocalDate.ofInstant(java.time.Instant.ofEpochMilli(expense.dateMillis), ZoneId.systemDefault())
+            _selectedCategoryId.value = expense.categoryId
+            
+            // Payment method logic
+            val isCredit = expense.transactionType == TransactionType.CREDIT
+            if (isCredit) {
+                // For credit, find the "Credit Card" base account ID
+                paymentMethodBaseAccounts.value.find { it.name == "Credit Card" }?.let { baseAcc ->
+                    _selectedAccountId.value = baseAcc.id
+                    _isCreditCardSelected.value = true
+                    _selectedCreditCardId.value = expense.creditCardId
+                }
+            } else {
+                // Find if it's cash or bank
+                // For bank, we need to know it IS a bank account. 
+                // We'll peek at the account list.
+                val account = repository.getAllAccounts().first().find { it.id == expense.accountId }
+                if (account?.name == "Cash") {
+                    _selectedAccountId.value = account.id
+                    _isBankSelected.value = false
+                } else if (account?.accountType == com.android.billreminder.data.local.entity.AccountType.BANK) {
+                    // It's a specific bank account. Select "Bank" base and then sub-picker
+                    paymentMethodBaseAccounts.value.find { it.name == "Bank" }?.let { baseAcc ->
+                        _selectedAccountId.value = baseAcc.id
+                        _isBankSelected.value = true
+                        _selectedBankAccountId.value = account.id
+                    }
+                }
+            }
+        }
+    }
 
     fun setType(type: String) { _type.value = type }
     fun setDate(date: LocalDate) { _date.value = date }
@@ -117,6 +164,7 @@ class AddTransactionViewModel @Inject constructor(
             val transactionType = if (isCreditCard) TransactionType.CREDIT else TransactionType.NORMAL
 
             val expense = ExpenseEntity(
+                id = editingTransactionId ?: 0L,
                 type = _type.value,
                 amountCents = amount,
                 categoryId = catId,
@@ -126,12 +174,31 @@ class AddTransactionViewModel @Inject constructor(
                 dateMillis = _date.value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
                 transactionType = transactionType
             )
-            repository.insertTransaction(expense)
 
-            // Updates bank balance only for non-credit transactions
-            if (!isCreditCard) {
-                val delta = if (expense.type == "INCOME") amount else -amount
-                repository.updateAccountBalance(finalAccountId, delta)
+            // ✅ HANDLE BALANCE INTEGRITY
+            if (isEditMode) {
+                val old = originalTransaction!!
+                
+                // 1. Reverse old effect
+                if (old.transactionType != TransactionType.CREDIT) {
+                    val reverseDelta = if (old.type == "INCOME") -old.amountCents else old.amountCents
+                    repository.updateAccountBalance(old.accountId, reverseDelta)
+                }
+
+                // 2. Apply new effect
+                if (expense.transactionType != TransactionType.CREDIT) {
+                    val newDelta = if (expense.type == "INCOME") amount else -amount
+                    repository.updateAccountBalance(finalAccountId, newDelta)
+                }
+
+            } else {
+                repository.insertTransaction(expense)
+
+                // 3. New transaction effect
+                if (!isCreditCard) {
+                    val delta = if (expense.type == "INCOME") amount else -amount
+                    repository.updateAccountBalance(finalAccountId, delta)
+                }
             }
 
             onComplete()

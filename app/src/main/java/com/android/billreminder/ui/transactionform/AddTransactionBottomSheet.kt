@@ -20,6 +20,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
@@ -43,6 +46,12 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        val transactionId = arguments?.getLong("transactionId") ?: -1L
+        if (transactionId != -1L) {
+            viewModel.loadTransaction(transactionId)
+        }
+
         setupListeners()
         observeState()
     }
@@ -100,10 +109,18 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                     }
                 }
 
-                launch { viewModel.categories.collect { updateCategoryChips(it) } }
+                launch { 
+                    viewModel.categories.collect { cats -> 
+                        updateCategoryChips(cats, viewModel.selectedCategoryId.value) 
+                    } 
+                }
 
                 // Top-level Payment Method (Cash, Bank, Credit Card)
-                launch { viewModel.paymentMethodBaseAccounts.collect { updateAccountChips(it) } }
+                launch { 
+                    viewModel.paymentMethodBaseAccounts.collect { accs -> 
+                        updateAccountChips(accs, viewModel.selectedAccountId.value) 
+                    } 
+                }
 
                 // Show/hide credit card picker section
                 launch {
@@ -121,8 +138,24 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                 }
 
                 // Populate sub-pickers
-                launch { viewModel.creditCards.collect { updateCreditCardChips(it) } }
-                launch { viewModel.bankAccounts.collect { updateBankAccountChips(it) } }
+                launch { 
+                    viewModel.creditCards.collect { cards -> 
+                        updateCreditCardChips(cards, viewModel.selectedCreditCardId.value) 
+                    } 
+                }
+                launch { 
+                    viewModel.bankAccounts.collect { accs -> 
+                        updateBankAccountChips(accs, viewModel.selectedBankAccountId.value) 
+                    } 
+                }
+
+                launch {
+                    // Update header title
+                    if (viewModel.isEditMode) {
+                        // We need a reference to the sheet title if available in XML, or just change btn text
+                        binding.btnSave.text = "Update Transaction"
+                    }
+                }
             }
         }
     }
@@ -158,25 +191,31 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                     if (isExpense) R.color.expense_red else R.color.income_blue
                 )
             )
-            text = getString(if (isExpense) R.string.save_expense else R.string.save_income)
+            if (!viewModel.isEditMode) {
+                text = getString(if (isExpense) R.string.save_expense else R.string.save_income)
+            }
         }
     }
 
-    private fun updateCategoryChips(categories: List<CategoryEntity>) {
+    private fun updateCategoryChips(categories: List<CategoryEntity>, selectedId: Long?) {
         binding.cgCategories.removeAllViews()
-        categories.forEachIndexed { index, category ->
+        categories.forEach { category ->
             val chip = Chip(requireContext()).apply {
                 text = "${category.iconEmoji} ${category.name}"
                 isCheckable = true
                 id = View.generateViewId()
+                isChecked = category.id == selectedId
                 setOnClickListener { viewModel.selectCategory(category.id) }
             }
             binding.cgCategories.addView(chip)
-            if (index == 0) {
-                chip.isChecked = true
-                viewModel.selectCategory(category.id)
-            }
         }
+        
+        // Auto-select first if none selected
+        if (selectedId == null && categories.isNotEmpty() && !viewModel.isEditMode) {
+            (binding.cgCategories.getChildAt(0) as? Chip)?.isChecked = true
+            viewModel.selectCategory(categories[0].id)
+        }
+
         val newChip = Chip(requireContext()).apply {
             text = getString(R.string.new_category)
             setOnClickListener { /* Open Category Manager */ }
@@ -184,49 +223,49 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
         binding.cgCategories.addView(newChip)
     }
 
-    private fun updateAccountChips(accounts: List<AccountEntity>) {
+    private fun updateAccountChips(accounts: List<AccountEntity>, selectedId: Long?) {
         binding.cgAccounts.removeAllViews()
-        accounts.forEachIndexed { index, account ->
+        accounts.forEach { account ->
             val chip = Chip(requireContext()).apply {
                 text = "${account.iconEmoji} ${account.name}"
                 isCheckable = true
                 id = View.generateViewId()
+                isChecked = account.id == selectedId
                 setOnClickListener { viewModel.selectAccount(account.id, account.name) }
             }
             binding.cgAccounts.addView(chip)
-            if (index == 0) {
-                chip.isChecked = true
-                viewModel.selectAccount(account.id, account.name)
-            }
+        }
+        if (selectedId == null && accounts.isNotEmpty() && !viewModel.isEditMode) {
+            (binding.cgAccounts.getChildAt(0) as? Chip)?.isChecked = true
+            viewModel.selectAccount(accounts[0].id, accounts[0].name)
         }
     }
 
     /**
      * Populates the bank account chips that appear when "Bank" payment method is selected.
      */
-    private fun updateBankAccountChips(accounts: List<AccountEntity>) {
+    private fun updateBankAccountChips(accounts: List<AccountEntity>, selectedId: Long?) {
         binding.cgBankAccounts.removeAllViews()
-        accounts.forEachIndexed { index, account ->
+        accounts.forEach { account ->
             val chip = Chip(requireContext()).apply {
                 text = "${account.iconEmoji} ${account.name}"
                 isCheckable = true
                 id = View.generateViewId()
+                isChecked = account.id == selectedId
                 setOnClickListener { viewModel.selectBankAccount(account.id) }
             }
             binding.cgBankAccounts.addView(chip)
-
-            // Auto-select first bank account
-            if (index == 0) {
-                chip.isChecked = true
-                viewModel.selectBankAccount(account.id)
-            }
+        }
+        if (selectedId == null && accounts.isNotEmpty() && !viewModel.isEditMode) {
+            (binding.cgBankAccounts.getChildAt(0) as? Chip)?.isChecked = true
+            viewModel.selectBankAccount(accounts[0].id)
         }
     }
 
     /**
      * Populates the credit card chips that appear when "Credit Card" account is selected.
      */
-    private fun updateCreditCardChips(cards: List<CreditCard>) {
+    private fun updateCreditCardChips(cards: List<CreditCard>, selectedId: Long?) {
         binding.cgCreditCards.removeAllViews()
 
         if (cards.isEmpty()) {
@@ -238,20 +277,19 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
 
         binding.tvNoCardsWarning?.isVisible = false
 
-        cards.forEachIndexed { index, card ->
+        cards.forEach { card ->
             val chip = Chip(requireContext()).apply {
                 text = "💳 ${card.bankName} ••••${card.lastFourDigits}"
                 isCheckable = true
                 id = View.generateViewId()
+                isChecked = card.id == selectedId
                 setOnClickListener { viewModel.selectCreditCard(card.id) }
             }
             binding.cgCreditCards.addView(chip)
-
-            // Auto-select first card
-            if (index == 0) {
-                chip.isChecked = true
-                viewModel.selectCreditCard(card.id)
-            }
+        }
+        if (selectedId == null && cards.isNotEmpty() && !viewModel.isEditMode) {
+            (binding.cgCreditCards.getChildAt(0) as? Chip)?.isChecked = true
+            viewModel.selectCreditCard(cards[0].id)
         }
     }
 

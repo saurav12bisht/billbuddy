@@ -89,6 +89,14 @@ class TransactionsViewModel @Inject constructor(
 
     fun deleteTransaction(expense: ExpenseEntity) {
         viewModelScope.launch {
+            // Reverse the balance impact before deleting
+            val reversalDelta = if (expense.type == "INCOME") -expense.amountCents else expense.amountCents
+            
+            // Only update balance for non-credit transactions (as credit transactions use CreditCardId)
+            if (expense.creditCardId == null) {
+                repository.updateAccountBalance(expense.accountId, reversalDelta)
+            }
+            
             repository.deleteTransaction(expense)
         }
     }

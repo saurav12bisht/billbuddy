@@ -59,7 +59,7 @@ fun CreditCardBillEntity.toDomain() = CreditCardBill(
     generatedExpenseId = generatedExpenseId
 )
 
-fun CreditCardBill.toEntity() = CreditCardBillEntity(
+    fun CreditCardBill.toEntity() = CreditCardBillEntity(
     id = id,
     cardId = cardId,
     billingCycleStartDate = billingCycleStartDate,

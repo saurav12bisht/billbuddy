@@ -1,5 +1,6 @@
 package com.android.billreminder.ui.transactions
 
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -34,7 +35,12 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
 
     private fun setupRecyclerView() {
         adapter = TransactionsAdapter { row ->
-            // Handle item click (e.g. edit)
+            if (row is TransactionListItem.TransactionRow) {
+                val bundle = Bundle().apply {
+                    putLong("transactionId", row.item.expense.id)
+                }
+                findNavController().navigate(R.id.addTransactionBottomSheet, bundle)
+            }
         }
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = adapter
