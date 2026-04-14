@@ -34,8 +34,10 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(FragmentOnboa
         TabLayoutMediator(binding.dotsTab, binding.viewPager) { _, _ -> }.attach()
 
         binding.btnSkip.setOnClickListener {
-            viewModel.completeOnboarding()
-            findNavController().navigate(R.id.action_onboarding_to_home)
+            lifecycleScope.launch {
+                viewModel.completeOnboarding()
+                findNavController().navigate(R.id.action_onboarding_to_home)
+            }
         }
 
         binding.btnNext.setOnClickListener {
@@ -45,8 +47,10 @@ class OnboardingFragment : BaseFragment<FragmentOnboardingBinding>(FragmentOnboa
         }
 
         binding.btnGetStarted.setOnClickListener {
-            viewModel.completeOnboarding()
-            findNavController().navigate(R.id.action_onboarding_to_home)
+            lifecycleScope.launch {
+                viewModel.completeOnboarding()
+                findNavController().navigate(R.id.action_onboarding_to_home)
+            }
         }
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {

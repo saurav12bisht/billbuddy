@@ -15,10 +15,8 @@ class OnboardingViewModel @Inject constructor(
     val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    fun completeOnboarding() {
-        viewModelScope.launch {
-            appPreferences.setFirstLaunchComplete()
-        }
+    suspend fun completeOnboarding() {
+        appPreferences.setFirstLaunchComplete()
     }
 
     fun setLanguage(code: String) {
