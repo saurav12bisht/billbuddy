@@ -64,6 +64,15 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
 
                     state.card?.let { card ->
                         binding.toolbar.title = "${card.bankName} ••••${card.lastFourDigits}"
+                        
+                        // Card Visual
+                        binding.tvCardBankName.text = card.bankName.uppercase()
+                        binding.tvCardName.text = card.cardName
+                        binding.tvCardNumber.text = "••••  ••••  ••••  ${card.lastFourDigits}"
+                        
+                        // Billing Info
+                        binding.tvBillingDay.text = "Starts on ${card.billingDay}${getDayOfMonthSuffix(card.billingDay)}"
+                        binding.tvDueDay.text = "Due on ${card.dueDay}${getDayOfMonthSuffix(card.dueDay)}"
                     }
 
                     binding.tvCurrentCycleSpend.text =
@@ -114,5 +123,15 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun getDayOfMonthSuffix(n: Int): String {
+        if (n in 11..13) return "th"
+        return when (n % 10) {
+            1 -> "st"
+            2 -> "nd"
+            3 -> "rd"
+            else -> "th"
+        }
     }
 }

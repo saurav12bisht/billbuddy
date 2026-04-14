@@ -35,6 +35,7 @@
             android:padding="16dp">
 
             <!-- Card Visual -->
+            <!-- Card Visual -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
@@ -42,10 +43,87 @@
                 app:cardCornerRadius="20dp"
                 app:cardElevation="8dp"
                 app:strokeWidth="0dp">
-                <View
+
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/bg_credit_card_gradient" />
+                    android:background="@drawable/bg_credit_card_gradient"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvCardBankName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:alpha="0.9"
+                        tools:text="HDFC BANK" />
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_alignParentEnd="true"
+                        android:src="@drawable/ic_rupee_notif"
+                        android:alpha="0.8"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:id="@+id/tvCardNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:fontFamily="@font/poppins_semibold"
+                        android:letterSpacing="0.2"
+                        android:textColor="@color/white"
+                        android:textSize="20sp"
+                        tools:text="••••  ••••  ••••  1234" />
+
+                    <TextView
+                        android:id="@+id/tvCardNameLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:fontFamily="@font/poppins_regular"
+                        android:text="CARD NAME"
+                        android:textColor="@color/white"
+                        android:alpha="0.6"
+                        android:textSize="9sp" />
+
+                    <TextView
+                        android:id="@+id/tvCardName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@id/tvCardNameLabel"
+                        android:layout_marginBottom="-4dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textColor="@color/white"
+                        android:textSize="14sp"
+                        tools:text="Millennia" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:orientation="vertical"
+                        android:gravity="end">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="EXPIRES"
+                            android:textColor="@color/white"
+                            android:alpha="0.6"
+                            android:textSize="8sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="12/30"
+                            android:textColor="@color/white"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Stats Row: Current Cycle | Outstanding -->
@@ -53,14 +131,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="12dp">
 
                 <!-- Current Cycle Spend -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     app:cardBackgroundColor="@color/surface"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp">
@@ -68,11 +146,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="14dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="This Cycle"
+                            android:text="Unbilled Spend"
                             android:fontFamily="@font/poppins_regular"
                             android:textColor="@color/text_secondary"
                             android:textSize="11sp" />
@@ -82,7 +160,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_bold"
                             android:textColor="@color/primary"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             tools:text="₹4,250" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -92,7 +170,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     app:cardBackgroundColor="@color/surface"
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp">
@@ -100,7 +178,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="14dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -114,13 +192,74 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_bold"
                             android:textColor="@color/error_red"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             tools:text="₹11,400" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- Recent Spends Section Header -->
+            <!-- Billing Info Row -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="14dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Billing Cycle"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+                        <TextView
+                            android:id="@+id/tvBillingDay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/text_primary"
+                            android:textSize="13sp"
+                            tools:text="Starts 15th" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="end">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Monthly Due"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+                        <TextView
+                            android:id="@+id/tvDueDay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_medium"
+                            android:textColor="@color/expense_red"
+                            android:textSize="13sp"
+                            tools:text="Due on 5th" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
