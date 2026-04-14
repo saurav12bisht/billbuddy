@@ -143,40 +143,94 @@
         android:background="@color/divider"
         app:layout_constraintTop_toBottomOf="@+id/cgCategoriesExpanded" />
 
-    <!-- DATE -->
+    <!-- DATE & TIME -->
     <LinearLayout
-        android:id="@+id/llDatePicker"
+        android:id="@+id/llDateTimeContainer"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginHorizontal="16dp"
-        android:background="?attr/selectableItemBackground"
-        android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/vLine1">
 
-        <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_summary"
-            app:tint="@color/text_hint" />
-
-        <TextView
-            android:id="@+id/tvDate"
+        <!-- DATE -->
+        <LinearLayout
+            android:id="@+id/llDatePicker"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_weight="1"
-            android:fontFamily="@font/poppins_regular"
-            android:textColor="@color/text_primary"
-            android:textSize="14sp"
-            tools:text="Apr 11, 2026" />
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <ImageView
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:rotation="180"
-            android:src="@drawable/ic_back"
-            app:tint="@color/text_hint" />
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_summary"
+                app:tint="@color/text_hint" />
+
+            <TextView
+                android:id="@+id/tvDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                tools:text="Apr 11, 2026" />
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_marginEnd="8dp"
+                android:alpha="0.5"
+                android:rotation="270"
+                android:src="@drawable/ic_back"
+                app:tint="@color/text_hint" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/divider" />
+
+        <!-- TIME -->
+        <LinearLayout
+            android:id="@+id/llTimePicker"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.8"
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_history"
+                app:tint="@color/text_hint" />
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_regular"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                tools:text="10:30 AM" />
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:alpha="0.5"
+                android:rotation="270"
+                android:src="@drawable/ic_back"
+                app:tint="@color/text_hint" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- NOTE -->
@@ -187,7 +241,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
-        app:layout_constraintTop_toBottomOf="@+id/llDatePicker">
+        app:layout_constraintTop_toBottomOf="@+id/llDateTimeContainer">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etNote"

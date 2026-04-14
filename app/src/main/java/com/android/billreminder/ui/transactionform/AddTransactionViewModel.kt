@@ -16,7 +16,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +32,9 @@ class AddTransactionViewModel @Inject constructor(
 
     private val _date = MutableStateFlow(LocalDate.now())
     val date: StateFlow<LocalDate> = _date.asStateFlow()
+
+    private val _time = MutableStateFlow(LocalTime.now())
+    val time: StateFlow<LocalTime> = _time.asStateFlow()
 
     private val _selectedCategoryId = MutableStateFlow<Long?>(null)
     val selectedCategoryId: StateFlow<Long?> = _selectedCategoryId.asStateFlow()
@@ -100,7 +105,10 @@ class AddTransactionViewModel @Inject constructor(
             originalTransaction = expense
             
             _type.value = expense.type
-            _date.value = LocalDate.ofInstant(java.time.Instant.ofEpochMilli(expense.dateMillis), ZoneId.systemDefault())
+            val instant = java.time.Instant.ofEpochMilli(expense.dateMillis)
+            val zdt = instant.atZone(ZoneId.systemDefault())
+            _date.value = zdt.toLocalDate()
+            _time.value = zdt.toLocalTime()
             _selectedCategoryId.value = expense.categoryId
             _amount.value = com.android.billreminder.ui.common.util.CurrencyFormatter.formatPaiseToRupeeWithoutSymbol(expense.amountCents)
             _note.value = expense.note
@@ -136,6 +144,7 @@ class AddTransactionViewModel @Inject constructor(
 
     fun setType(type: String) { _type.value = type }
     fun setDate(date: LocalDate) { _date.value = date }
+    fun setTime(time: LocalTime) { _time.value = time }
     fun selectCategory(id: Long) { _selectedCategoryId.value = id }
 
     fun selectAccount(id: Long, name: String) {
@@ -188,7 +197,10 @@ class AddTransactionViewModel @Inject constructor(
                 accountId = finalAccountId,
                 creditCardId = if (isCreditCard) _selectedCreditCardId.value else null,
                 note = note.takeIf { it.isNotBlank() },
-                dateMillis = _date.value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                dateMillis = LocalDateTime.of(_date.value, _time.value)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli(),
                 transactionType = transactionType
             )
 

@@ -19,6 +19,8 @@ import com.android.billreminder.domain.model.CreditCard
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.time.Instant
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -82,6 +85,21 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
             }
             datePicker.show(childFragmentManager, "date_picker")
         }
+        
+        binding.llTimePicker.setOnClickListener {
+            val time = viewModel.time.value
+            val timePicker = MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_12H)
+                .setHour(time.hour)
+                .setMinute(time.minute)
+                .setTitleText("Select Time")
+                .build()
+            
+            timePicker.addOnPositiveButtonClickListener {
+                viewModel.setTime(LocalTime.of(timePicker.hour, timePicker.minute))
+            }
+            timePicker.show(childFragmentManager, "time_picker")
+        }
 
         binding.btnSave.setOnClickListener {
             // Validate credit card selection if CC is chosen
@@ -109,6 +127,13 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                     viewModel.date.collect {
                         binding.tvDate.text =
                             it.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))
+                    }
+                }
+
+                launch {
+                    viewModel.time.collect {
+                        binding.tvTime.text =
+                            it.format(DateTimeFormatter.ofPattern("hh:mm a"))
                     }
                 }
 

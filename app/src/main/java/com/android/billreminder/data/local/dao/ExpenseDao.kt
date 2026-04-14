@@ -57,7 +57,7 @@ interface ExpenseDao {
         FROM expenses 
         WHERE dateMillis BETWEEN :startMillis AND :endMillis
         AND transactionType = 'NORMAL'
-        GROUP BY dateMillis
+        GROUP BY strftime('%Y-%m-%d', dateMillis / 1000, 'unixepoch', 'localtime')
         ORDER BY dateMillis DESC
     """)
     fun getDailyTotals(startMillis: Long, endMillis: Long): Flow<List<DailyTotal>>
