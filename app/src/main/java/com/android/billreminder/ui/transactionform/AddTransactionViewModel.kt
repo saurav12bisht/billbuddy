@@ -117,7 +117,7 @@ class AddTransactionViewModel @Inject constructor(
             val isCredit = expense.transactionType == TransactionType.CREDIT
             if (isCredit) {
                 // For credit, find the "Credit Card" base account ID
-                paymentMethodBaseAccounts.value.find { it.name == "Credit Card" }?.let { baseAcc ->
+                paymentMethodBaseAccounts.first().find { it.name == "Credit Card" }?.let { baseAcc ->
                     _selectedAccountId.value = baseAcc.id
                     _isCreditCardSelected.value = true
                     _selectedCreditCardId.value = expense.creditCardId
@@ -132,7 +132,7 @@ class AddTransactionViewModel @Inject constructor(
                     _isBankSelected.value = false
                 } else if (account?.accountType == com.android.billreminder.data.local.entity.AccountType.BANK) {
                     // It's a specific bank account. Select "Bank" base and then sub-picker
-                    paymentMethodBaseAccounts.value.find { it.name == "Bank" }?.let { baseAcc ->
+                    paymentMethodBaseAccounts.first().find { it.name == "Bank" }?.let { baseAcc ->
                         _selectedAccountId.value = baseAcc.id
                         _isBankSelected.value = true
                         _selectedBankAccountId.value = account.id

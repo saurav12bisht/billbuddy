@@ -25,6 +25,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -138,15 +139,19 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                 }
 
                 launch { 
-                    viewModel.categories.collect { cats -> 
-                        updateCategoryChips(cats, viewModel.selectedCategoryId.value) 
+                    combine(viewModel.categories, viewModel.selectedCategoryId) { cats, selectedId ->
+                        cats to selectedId
+                    }.collect { (cats, selectedId) ->
+                        updateCategoryChips(cats, selectedId) 
                     } 
                 }
 
                 // Top-level Payment Method (Cash, Bank, Credit Card)
                 launch { 
-                    viewModel.paymentMethodBaseAccounts.collect { accs -> 
-                        updateAccountChips(accs, viewModel.selectedAccountId.value) 
+                    combine(viewModel.paymentMethodBaseAccounts, viewModel.selectedAccountId) { accs, selectedId ->
+                        accs to selectedId
+                    }.collect { (accs, selectedId) ->
+                        updateAccountChips(accs, selectedId) 
                     } 
                 }
 
@@ -167,13 +172,17 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
 
                 // Populate sub-pickers
                 launch { 
-                    viewModel.creditCards.collect { cards -> 
-                        updateCreditCardChips(cards, viewModel.selectedCreditCardId.value) 
+                    combine(viewModel.creditCards, viewModel.selectedCreditCardId) { cards, selectedId ->
+                        cards to selectedId
+                    }.collect { (cards, selectedId) ->
+                        updateCreditCardChips(cards, selectedId) 
                     } 
                 }
                 launch { 
-                    viewModel.bankAccounts.collect { accs -> 
-                        updateBankAccountChips(accs, viewModel.selectedBankAccountId.value) 
+                    combine(viewModel.bankAccounts, viewModel.selectedBankAccountId) { accs, selectedId ->
+                        accs to selectedId
+                    }.collect { (accs, selectedId) ->
+                        updateBankAccountChips(accs, selectedId) 
                     } 
                 }
 
