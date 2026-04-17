@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/transactionsFragment"
-        android:icon="@drawable/wallet_ic"
+        android:icon="@drawable/nav_icon_transactions"
         android:title="@string/nav_trans" />
     <item
         android:id="@+id/statsFragment"
-        android:icon="@drawable/ic_summary"
+        android:icon="@drawable/nav_icon_stats"
         android:title="@string/nav_stats" />
     <item
         android:id="@+id/accountsFragment"
-        android:icon="@drawable/ic_summary"
+        android:icon="@drawable/nav_icon_accounts"
         android:title="@string/nav_accounts" />
     <item
         android:id="@+id/settingsFragment"
-        android:icon="@drawable/ic_summary"
+        android:icon="@drawable/nav_icon_settings"
         android:title="@string/nav_more" />
 </menu>

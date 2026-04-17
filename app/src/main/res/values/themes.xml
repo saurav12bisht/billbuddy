@@ -24,7 +24,7 @@
 
     <style name="Widget.Paydrift.BottomNavigation" parent="Widget.Material3.BottomNavigationView">
         <item name="android:background">@color/bg_screen</item>
-        <item name="itemIconTint">@color/sel_bottom_nav</item>
+        <item name="itemIconTint">@null</item>
         <item name="itemTextColor">@color/sel_bottom_nav</item>
         <item name="labelVisibilityMode">labeled</item>
     </style>
