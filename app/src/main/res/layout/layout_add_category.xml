@@ -19,7 +19,7 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilCategoryName"
-        style="@style/Widget.BillBuddy.TextInputLayout"
+        style="@style/Widget.Fingram.TextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"

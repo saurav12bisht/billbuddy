@@ -20,6 +20,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Billbuddy"
+rootProject.name = "Fingram"
 include(":app")
  

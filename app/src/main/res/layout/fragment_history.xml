@@ -15,14 +15,14 @@
         android:paddingBottom="24dp">
 
         <com.google.android.material.appbar.AppBarLayout
-            style="@style/Widget.BillBuddy.ToolbarContainer"
+            style="@style/Widget.Fingram.ToolbarContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.BillBuddy.TopAppBar"
+                style="@style/Widget.Fingram.TopAppBar"
                 android:paddingHorizontal="12dp"
                 android:subtitle="@string/toolbar_history_subtitle"
                 app:title="@string/history"

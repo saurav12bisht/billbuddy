@@ -10,7 +10,7 @@ import javax.inject.Singleton
 class PreferenceManager @Inject constructor(@ApplicationContext context: Context) {
 
     private val prefs: SharedPreferences =
-        context.getSharedPreferences("billbuddy_prefs", Context.MODE_PRIVATE)
+        context.getSharedPreferences("fingram_prefs", Context.MODE_PRIVATE)
 
     var isCreditCardEducationShown: Boolean
         get() = prefs.getBoolean(KEY_CC_EDUCATION_SHOWN, false)

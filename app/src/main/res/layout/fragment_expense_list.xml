@@ -10,11 +10,11 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.BillBuddy.ToolbarContainer">
+        style="@style/Widget.Fingram.ToolbarContainer">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.BillBuddy.TopAppBar"
+            style="@style/Widget.Fingram.TopAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="12dp"
@@ -122,7 +122,7 @@
         android:background="@drawable/bill_fab_gradient"
         android:padding="16dp"
         app:tint="@color/white"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Vyapaar.Medium"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Fingram.Medium"
         android:elevation="8dp"
         android:clickable="true"
         android:focusable="true"/>

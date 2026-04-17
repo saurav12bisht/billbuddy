@@ -10,11 +10,11 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.BillBuddy.ToolbarContainer">
+        style="@style/Widget.Fingram.ToolbarContainer">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.BillBuddy.TopAppBar"
+            style="@style/Widget.Fingram.TopAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="12dp"
@@ -38,14 +38,14 @@
             <!-- Amount -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilAmount"
-                style="@style/Widget.BillBuddy.TextInputLayout"
+                style="@style/Widget.Fingram.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/amount">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etAmount"
-                    style="@style/Widget.BillBuddy.TextInputEditText"
+                    style="@style/Widget.Fingram.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
@@ -70,14 +70,14 @@
                     <!-- Date -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilDate"
-                        style="@style/Widget.BillBuddy.TextInputLayout"
+                        style="@style/Widget.Fingram.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/date">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputDate"
-                            style="@style/Widget.BillBuddy.TextInputEditText"
+                            style="@style/Widget.Fingram.TextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:focusable="false"
@@ -124,7 +124,7 @@
                     <!-- Note -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilNote"
-                        style="@style/Widget.BillBuddy.TextInputLayout"
+                        style="@style/Widget.Fingram.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
@@ -132,7 +132,7 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etNote"
-                            style="@style/Widget.BillBuddy.TextInputEditText"
+                            style="@style/Widget.Fingram.TextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textCapSentences" />
@@ -260,7 +260,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveExpense"
-                style="@style/Widget.BillBuddy.GradientButton"
+                style="@style/Widget.Fingram.GradientButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"

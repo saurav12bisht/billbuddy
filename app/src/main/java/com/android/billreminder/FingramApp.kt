@@ -9,7 +9,7 @@ import com.android.billreminder.worker.CreditCardReminderWorker
 import java.util.concurrent.TimeUnit
 
 @HiltAndroidApp
-class BillReminderApp : Application(), Configuration.Provider {
+class FingramApp : Application(), Configuration.Provider {
 
     @Inject
     lateinit var workerFactory: androidx.hilt.work.HiltWorkerFactory

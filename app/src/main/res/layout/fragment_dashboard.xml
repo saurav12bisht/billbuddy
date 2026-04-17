@@ -14,13 +14,13 @@
         android:paddingBottom="24dp">
 
         <com.google.android.material.appbar.AppBarLayout
-            style="@style/Widget.BillBuddy.ToolbarContainer"
+            style="@style/Widget.Fingram.ToolbarContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
-                style="@style/Widget.BillBuddy.TopAppBar"
+                style="@style/Widget.Fingram.TopAppBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="12dp"

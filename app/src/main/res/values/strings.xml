@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BillBuddy</string>
+    <string name="app_name">Fingram</string>
     <string name="tagline">Professional Expense Tracking</string>
     <string name="nav_trans">Transaction</string>
     <string name="nav_stats">Stats</string>

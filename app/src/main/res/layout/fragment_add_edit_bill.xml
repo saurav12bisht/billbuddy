@@ -9,11 +9,11 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/Widget.BillBuddy.ToolbarContainer">
+        style="@style/Widget.Fingram.ToolbarContainer">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.BillBuddy.TopAppBar"
+            style="@style/Widget.Fingram.TopAppBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="12dp"
@@ -36,14 +36,14 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilAmount"
-                style="@style/Widget.BillBuddy.TextInputLayout"
+                style="@style/Widget.Fingram.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/amount">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etAmount"
-                    style="@style/Widget.BillBuddy.TextInputEditText"
+                    style="@style/Widget.Fingram.TextInputEditText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="numberDecimal"
@@ -67,21 +67,21 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilBillName"
-                        style="@style/Widget.BillBuddy.TextInputLayout"
+                        style="@style/Widget.Fingram.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/bill_name">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etBillName"
-                            style="@style/Widget.BillBuddy.TextInputEditText"
+                            style="@style/Widget.Fingram.TextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilDueDate"
-                        style="@style/Widget.BillBuddy.TextInputLayout"
+                        style="@style/Widget.Fingram.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
@@ -89,7 +89,7 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/inputDueDate"
-                            style="@style/Widget.BillBuddy.TextInputEditText"
+                            style="@style/Widget.Fingram.TextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:focusable="false"
@@ -135,7 +135,7 @@
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/tilRepeatType"
-                        style="@style/Widget.BillBuddy.TextInputLayout"
+                        style="@style/Widget.Fingram.TextInputLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="14dp"
@@ -143,7 +143,7 @@
 
                         <AutoCompleteTextView
                             android:id="@+id/etRepeatType"
-                            style="@style/Widget.BillBuddy.TextInputEditText"
+                            style="@style/Widget.Fingram.TextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none" />
@@ -176,7 +176,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSaveBill"
-                style="@style/Widget.BillBuddy.GradientButton"
+                style="@style/Widget.Fingram.GradientButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"

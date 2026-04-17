@@ -14,7 +14,7 @@
         android:elevation="4dp">
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.Vyapaar.Toolbar"
+            style="@style/Widget.Fingram.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/customers" />

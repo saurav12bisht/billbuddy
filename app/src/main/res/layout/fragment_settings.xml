@@ -15,14 +15,14 @@
         android:paddingBottom="32dp">
 
         <com.google.android.material.appbar.AppBarLayout
-            style="@style/Widget.BillBuddy.ToolbarContainer"
+            style="@style/Widget.Fingram.ToolbarContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.BillBuddy.TopAppBar"
+                style="@style/Widget.Fingram.TopAppBar"
                 android:paddingHorizontal="12dp"
                 android:subtitle="@string/toolbar_settings_subtitle"
                 app:title="@string/settings"
@@ -60,7 +60,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="BillBuddy"
+                        android:text="Fingram"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />

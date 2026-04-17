@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.VyapaarHisaab" parent="Theme.Material3.Light.NoActionBar">
+    <style name="Theme.Fingram" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/expense_red</item>
         <item name="colorPrimaryDark">@color/bg_screen</item>
         <item name="colorSecondary">@color/income_blue</item>
@@ -53,26 +53,26 @@
         <item name="fontFamily">@font/poppins_semibold</item>
     </style>
 
-    <!-- Legacy support styles to avoid breaks -->
-    <style name="Widget.BillBuddy.Button" parent="Widget.Paydrift.Button" />
-    <style name="Widget.BillBuddy.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+    <!-- Styling System -->
+    <style name="Widget.Fingram.Button" parent="Widget.Paydrift.Button" />
+    <style name="Widget.Fingram.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/bg_day_header</item>
         <item name="boxStrokeColor">@color/expense_red</item>
         <item name="shapeAppearance">@style/ShapeAppearance.Paydrift.Medium</item>
     </style>
-    <style name="Widget.BillBuddy.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+    <style name="Widget.Fingram.TextInputEditText" parent="Widget.Material3.TextInputEditText.OutlinedBox">
         <item name="android:textColor">@color/text_primary</item>
     </style>
-    <style name="Widget.BillBuddy.ToolbarContainer" parent="" />
-    <style name="Widget.BillBuddy.TopAppBar" parent="Widget.Material3.Toolbar" />
-    <style name="TextAppearance.BillBuddy.BottomNav" parent="" />
-    <style name="Widget.Vyapaar.BottomNavigation" parent="Widget.Material3.BottomNavigationView" />
-    <style name="Widget.Vyapaar.Toolbar" parent="Widget.Material3.Toolbar">
+    <style name="Widget.Fingram.ToolbarContainer" parent="" />
+    <style name="Widget.Fingram.TopAppBar" parent="Widget.Material3.Toolbar" />
+    <style name="TextAppearance.Fingram.BottomNav" parent="" />
+    <style name="Widget.Fingram.BottomNavigation" parent="Widget.Material3.BottomNavigationView" />
+    <style name="Widget.Fingram.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="android:background">@color/bg_screen</item>
         <item name="titleTextColor">@color/text_primary</item>
     </style>
-    <style name="ShapeAppearance.Vyapaar.Medium" parent="ShapeAppearance.Paydrift.Medium" />
-    <style name="Widget.BillBuddy.GradientButton" parent="Widget.Paydrift.Button" />
+    <style name="ShapeAppearance.Fingram.Medium" parent="ShapeAppearance.Paydrift.Medium" />
+    <style name="Widget.Fingram.GradientButton" parent="Widget.Paydrift.Button" />
 
     <style name="ToolbarTitleTextAppearance" parent="TextAppearance.Material3.TitleLarge">
         <item name="android:fontFamily">@font/poppins_semibold</item>

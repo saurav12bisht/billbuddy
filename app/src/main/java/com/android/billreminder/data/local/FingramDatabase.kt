@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
     version = 10,
     exportSchema = false
 )
-abstract class VyapaarDatabase : RoomDatabase() {
+abstract class FingramDatabase : RoomDatabase() {
     abstract fun customerDao(): CustomerDao
     abstract fun transactionDao(): TransactionDao
     abstract fun billDao(): BillDao
@@ -38,14 +38,14 @@ abstract class VyapaarDatabase : RoomDatabase() {
 
     companion object {
         @Volatile
-        private var INSTANCE: VyapaarDatabase? = null
+        private var INSTANCE: FingramDatabase? = null
 
-        fun getInstance(context: Context): VyapaarDatabase =
+        fun getInstance(context: Context): FingramDatabase =
             INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,
-                    VyapaarDatabase::class.java,
-                    "vyapaar_db"
+                    FingramDatabase::class.java,
+                    "fingram_db"
                 )
                     .addMigrations(
                         MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, 
@@ -68,7 +68,7 @@ abstract class VyapaarDatabase : RoomDatabase() {
             }
         }
 
-        private suspend fun prepopulateData(db: VyapaarDatabase) {
+        private suspend fun prepopulateData(db: FingramDatabase) {
             val expenseDao = db.expenseDao()
             val accountDao = db.accountDao()
 

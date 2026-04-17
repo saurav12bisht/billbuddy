@@ -23,7 +23,7 @@ class CreditCardReminderWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val creditCardRepository: CreditCardRepository,
-    private val vyapaarDatabase: com.android.billreminder.data.local.VyapaarDatabase
+    private val fingramDatabase: com.android.billreminder.data.local.FingramDatabase
 ) : CoroutineWorker(context, workerParams) {
 
     companion object {
@@ -32,7 +32,7 @@ class CreditCardReminderWorker @AssistedInject constructor(
     }
 
     private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
-    private val logDao = vyapaarDatabase.notificationLogDao()
+    private val logDao = fingramDatabase.notificationLogDao()
 
     override suspend fun doWork(): Result {
         ensureNotificationChannel()

@@ -1,7 +1,7 @@
 package com.android.billreminder.di
 
 import android.content.Context
-import com.android.billreminder.data.local.VyapaarDatabase
+import com.android.billreminder.data.local.FingramDatabase
 import com.android.billreminder.data.local.dao.BillDao
 import com.android.billreminder.data.local.dao.CustomerDao
 import com.android.billreminder.data.local.dao.TransactionDao
@@ -18,24 +18,24 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): VyapaarDatabase =
-        VyapaarDatabase.getInstance(context)
+    fun provideDatabase(@ApplicationContext context: Context): FingramDatabase =
+        FingramDatabase.getInstance(context)
 
     @Provides
-    fun provideCustomerDao(db: VyapaarDatabase): CustomerDao = db.customerDao()
+    fun provideCustomerDao(db: FingramDatabase): CustomerDao = db.customerDao()
 
     @Provides
-    fun provideTransactionDao(db: VyapaarDatabase): TransactionDao = db.transactionDao()
+    fun provideTransactionDao(db: FingramDatabase): TransactionDao = db.transactionDao()
 
     @Provides
-    fun provideBillDao(db: VyapaarDatabase): BillDao = db.billDao()
+    fun provideBillDao(db: FingramDatabase): BillDao = db.billDao()
 
     @Provides
-    fun provideExpenseDao(db: VyapaarDatabase): com.android.billreminder.data.local.dao.ExpenseDao = db.expenseDao()
+    fun provideExpenseDao(db: FingramDatabase): com.android.billreminder.data.local.dao.ExpenseDao = db.expenseDao()
 
     @Provides
-    fun provideAccountDao(db: VyapaarDatabase): com.android.billreminder.data.local.dao.AccountDao = db.accountDao()
+    fun provideAccountDao(db: FingramDatabase): com.android.billreminder.data.local.dao.AccountDao = db.accountDao()
 
     @Provides
-    fun provideCreditCardDao(db: VyapaarDatabase): com.android.billreminder.data.local.dao.CreditCardDao = db.creditCardDao()
+    fun provideCreditCardDao(db: FingramDatabase): com.android.billreminder.data.local.dao.CreditCardDao = db.creditCardDao()
 }
