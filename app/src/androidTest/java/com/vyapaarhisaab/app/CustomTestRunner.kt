@@ -1,4 +1,4 @@
-package com.android.billreminder
+package com.android.fingram
 
 import android.app.Application
 import android.content.Context

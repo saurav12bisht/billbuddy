@@ -11,7 +11,7 @@ plugins {
 }
 
 android {
-    namespace = "com.android.billreminder"
+    namespace = "com.android.fingram"
     compileSdk = 36
 
     defaultConfig {

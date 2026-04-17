@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="com.android.billreminder.ui.splash.SplashFragment"
+        android:name="com.android.fingram.ui.splash.SplashFragment"
         android:label="@string/app_name"
         tools:layout="@layout/fragment_splash">
         <action
@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/onboardingFragment"
-        android:name="com.android.billreminder.ui.onboarding.OnboardingFragment"
+        android:name="com.android.fingram.ui.onboarding.OnboardingFragment"
         android:label="Onboarding"
         tools:layout="@layout/fragment_onboarding">
         <action
@@ -41,7 +41,7 @@
 
     <fragment
         android:id="@+id/pinLockFragment"
-        android:name="com.android.billreminder.ui.settings.PinLockFragment"
+        android:name="com.android.fingram.ui.settings.PinLockFragment"
         android:label="PIN Lock"
         tools:layout="@layout/fragment_pin_lock">
         <action
@@ -54,7 +54,7 @@
     <!-- NEW EXPENSE MODULE -->
     <fragment
         android:id="@+id/transactionsFragment"
-        android:name="com.android.billreminder.ui.transactions.TransactionsFragment"
+        android:name="com.android.fingram.ui.transactions.TransactionsFragment"
         android:label="@string/nav_trans"
         tools:layout="@layout/fragment_transactions">
         <action
@@ -64,13 +64,13 @@
 
     <fragment
         android:id="@+id/statsFragment"
-        android:name="com.android.billreminder.ui.stats.StatsFragment"
+        android:name="com.android.fingram.ui.stats.StatsFragment"
         android:label="@string/nav_stats"
         tools:layout="@layout/fragment_stats" />
 
     <fragment
         android:id="@+id/accountsFragment"
-        android:name="com.android.billreminder.ui.accounts.AccountsFragment"
+        android:name="com.android.fingram.ui.accounts.AccountsFragment"
         android:label="@string/nav_accounts"
         tools:layout="@layout/fragment_accounts">
         <action
@@ -83,7 +83,7 @@
 
     <dialog
         android:id="@+id/addTransactionBottomSheet"
-        android:name="com.android.billreminder.ui.transactionform.AddTransactionBottomSheet"
+        android:name="com.android.fingram.ui.transactionform.AddTransactionBottomSheet"
         android:label="Add Transaction"
         tools:layout="@layout/layout_add_transaction">
         <action
@@ -98,26 +98,26 @@
     <!-- LEGACY/EXISTING BILLS -->
     <fragment
         android:id="@+id/billListFragment"
-        android:name="com.android.billreminder.ui.bills.BillListFragment"
+        android:name="com.android.fingram.ui.bills.BillListFragment"
         android:label="@string/nav_home"
         tools:layout="@layout/fragment_bill_list" />
 
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.android.billreminder.ui.settings.SettingsFragment"
+        android:name="com.android.fingram.ui.settings.SettingsFragment"
         android:label="@string/settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/manageAccountsFragment"
-        android:name="com.android.billreminder.ui.accounts.ManageAccountsFragment"
+        android:name="com.android.fingram.ui.accounts.ManageAccountsFragment"
         android:label="Accounts"
         tools:layout="@layout/fragment_manage_accounts" />
 
     <!-- Credit Card Module -->
     <fragment
         android:id="@+id/creditCardListFragment"
-        android:name="com.android.billreminder.ui.creditcards.CreditCardListFragment"
+        android:name="com.android.fingram.ui.creditcards.CreditCardListFragment"
         android:label="Credit Cards"
         tools:layout="@layout/fragment_credit_card_list">
         <action
@@ -130,7 +130,7 @@
 
     <fragment
         android:id="@+id/creditCardDetailFragment"
-        android:name="com.android.billreminder.ui.creditcards.CreditCardDetailFragment"
+        android:name="com.android.fingram.ui.creditcards.CreditCardDetailFragment"
         android:label="Card Detail"
         tools:layout="@layout/fragment_credit_card_detail">
         <argument
@@ -141,7 +141,7 @@
 
     <fragment
         android:id="@+id/addEditCreditCardFragment"
-        android:name="com.android.billreminder.ui.creditcards.AddEditCreditCardFragment"
+        android:name="com.android.fingram.ui.creditcards.AddEditCreditCardFragment"
         android:label="{title}"
         tools:layout="@layout/fragment_add_edit_credit_card">
         <argument
@@ -156,7 +156,7 @@
 
     <fragment
         android:id="@+id/addEditExpenseFragment"
-        android:name="com.android.billreminder.ui.expenseform.AddEditExpenseFragment"
+        android:name="com.android.fingram.ui.expenseform.AddEditExpenseFragment"
         android:label="Add Expense"
         tools:layout="@layout/fragment_add_edit_expense">
         <argument
