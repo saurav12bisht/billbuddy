@@ -66,7 +66,7 @@ interface CreditCardDao {
      * Outstanding amount for a card: sum of all unpaid bills.
      */
     @Query("""
-        SELECT COALESCE(SUM(totalAmountCents), 0) 
+        SELECT COALESCE(SUM(totalAmountCents - paidAmountCents), 0) 
         FROM credit_card_bills 
         WHERE cardId = :cardId AND isPaid = 0
     """)

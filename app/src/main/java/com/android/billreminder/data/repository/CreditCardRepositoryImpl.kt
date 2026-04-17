@@ -110,10 +110,25 @@ class CreditCardRepositoryImpl @Inject constructor(
         ccPaymentCategoryId: Long,
         amountCents: Long
     ): Long = withContext(io) {
-        if (amountCents <= 0) return@withContext 0L
-        val now = System.currentTimeMillis()
+        if (amountCents <= 0) {
+            throw IllegalArgumentException("Invalid payment amount")
+        }
 
-        // 1. Create a NORMAL/EXPENSE entry for the amount
+        val remainingAmount = (bill.totalAmountCents - bill.paidAmountCents).coerceAtLeast(0L)
+        if (remainingAmount <= 0L) {
+            throw IllegalStateException("This bill is already paid")
+        }
+        if (amountCents > remainingAmount) {
+            throw IllegalArgumentException("Payment amount cannot exceed the remaining due")
+        }
+
+        val now = System.currentTimeMillis()
+        val sourceAccount = accountDao.getAccountById(paidFromAccountId)
+            ?: throw IllegalArgumentException("Selected source account was not found")
+        val card = creditCardDao.getCreditCardById(bill.cardId)
+        val cardLabel = card?.let { "${it.bankName} ••••${it.lastFourDigits}" } ?: "credit card bill"
+
+        // Record the bank debit as a normal expense so it appears in Transactions.
         val paymentExpense = ExpenseEntity(
             id = 0,
             type = "EXPENSE",
@@ -121,17 +136,17 @@ class CreditCardRepositoryImpl @Inject constructor(
             amountCents = amountCents,
             categoryId = ccPaymentCategoryId,
             accountId = paidFromAccountId,
-            creditCardId = bill.cardId,
-            note = "Credit card bill payment - ${bill.status}",
+            creditCardId = null,
+            note = "Credit card payment from ${sourceAccount.name} for $cardLabel",
             dateMillis = now,
             createdAt = now
         )
         val expenseId = expenseDao.insertExpense(paymentExpense)
 
-        // 2. Update source account balance (-)
+        // Debit the chosen bank account.
         accountDao.updateBalance(paidFromAccountId, -amountCents)
 
-        // 3. Update bill status
+        // Update the bill with the payment that was recorded above.
         val newPaidAmount = bill.paidAmountCents + amountCents
         val isFullPayment = newPaidAmount >= bill.totalAmountCents
         

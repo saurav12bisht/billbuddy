@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billreminder.data.local.entity.AccountEntity
+import com.android.billreminder.data.local.entity.AccountType
 import com.android.billreminder.data.local.entity.ExpenseWithCategory
 import com.android.billreminder.domain.model.CreditCard
 import com.android.billreminder.domain.model.CreditCardBill
@@ -11,7 +12,11 @@ import com.android.billreminder.domain.repository.CreditCardRepository
 import com.android.billreminder.domain.repository.ExpenseRepository
 import com.android.billreminder.ui.common.util.CreditCardBillingUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -58,10 +63,8 @@ class CreditCardDetailViewModel @Inject constructor(
             val currentCycleEnd = cycle.endDateMillis
             val dueDate = cycle.dueDateMillis
 
-            // Generate or fetch the bill for the current cycle (lazy)
             creditCardRepository.generateOrGetBillForCycle(card, currentCycleStart, currentCycleEnd, dueDate)
 
-            // Collect all live streams
             launch {
                 creditCardRepository.getTotalSpendForCardInCycle(card.id, currentCycleStart, currentCycleEnd)
                     .collect { spend ->
@@ -79,8 +82,16 @@ class CreditCardDetailViewModel @Inject constructor(
             launch {
                 creditCardRepository.getBillsForCard(card.id)
                     .collect { bills ->
-                        val billedDue = bills.filter { !it.isPaid }.sumOf { it.totalAmountCents - it.paidAmountCents }
-                        _uiState.update { it.copy(bills = bills, billedDueAmount = billedDue, isLoading = false) }
+                        val billedDue = bills
+                            .filter { !it.isPaid }
+                            .sumOf { (it.totalAmountCents - it.paidAmountCents).coerceAtLeast(0L) }
+                        _uiState.update {
+                            it.copy(
+                                bills = bills,
+                                billedDueAmount = billedDue,
+                                isLoading = false
+                            )
+                        }
                     }
             }
 
@@ -94,23 +105,24 @@ class CreditCardDetailViewModel @Inject constructor(
             launch {
                 expenseRepository.getAllAccounts()
                     .collect { accounts ->
-                        _uiState.update { it.copy(accounts = accounts.filter { a ->
-                            a.accountType != com.android.billreminder.data.local.entity.AccountType.CARD_PROXY
-                        }) }
+                        _uiState.update {
+                            it.copy(
+                                accounts = accounts.filter { account ->
+                                    account.accountType == AccountType.BANK && account.name != "Bank"
+                                }
+                            )
+                        }
                     }
             }
         }
     }
 
-    /**
-     * Pay a bill using the given bank account.
-     * Finds the reserved "CC Payment" category automatically.
-     */
     fun payBill(bill: CreditCardBill, payFromAccountId: Long, amountCents: Long) {
         viewModelScope.launch {
             try {
                 val ccCategory = expenseRepository.getCategoryByName("CC Payment")
-                    ?: expenseRepository.getFirstCategory()!! // Fallback
+                    ?: expenseRepository.getFirstCategory()
+                    ?: throw IllegalStateException("CC Payment category not found")
 
                 creditCardRepository.markBillAsPaid(
                     bill = bill,
@@ -118,7 +130,7 @@ class CreditCardDetailViewModel @Inject constructor(
                     ccPaymentCategoryId = ccCategory.id,
                     amountCents = amountCents
                 )
-                _uiState.update { it.copy(successMessage = "Bill payment recorded! ✅") }
+                _uiState.update { it.copy(successMessage = "Payment recorded from your bank account.") }
             } catch (e: Exception) {
                 _uiState.update { it.copy(error = e.message ?: "Payment failed") }
             }

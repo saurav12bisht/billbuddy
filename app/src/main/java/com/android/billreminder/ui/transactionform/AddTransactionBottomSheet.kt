@@ -453,8 +453,16 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("$type Required")
             .setMessage("You haven't added any ${type.lowercase()}s yet. To track your ${type.lowercase()} spending, you need to add one first in the Accounts section.")
-            .setPositiveButton("Go to Accounts") { _, _ ->
-                findNavController().navigate(R.id.accountsFragment)
+            .setPositiveButton(if (type == "Credit Card") "Add Credit Card" else "Go to Accounts") { _, _ ->
+                if (type == "Credit Card") {
+                    val action = AddTransactionBottomSheetDirections.actionAddTransactionBottomSheetToAddEditCreditCardFragment(
+                        cardId = -1L,
+                        title = "Add Credit Card"
+                    )
+                    findNavController().navigate(action)
+                } else {
+                    findNavController().navigate(R.id.accountsFragment)
+                }
                 dismiss()
             }
             .setNegativeButton("Cancel", null)
