@@ -16,7 +16,10 @@ import com.android.billreminder.databinding.FragmentCreditCardDetailBinding
 import com.android.billreminder.domain.model.CreditCardBill
 import com.android.billreminder.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import com.android.billreminder.ui.common.util.PreferenceManager
+import javax.inject.Inject
 import kotlinx.coroutines.launch
+import com.android.billreminder.R
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -24,6 +27,9 @@ import java.util.Locale
 class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
     FragmentCreditCardDetailBinding::inflate
 ) {
+
+    @Inject
+    lateinit var preferenceManager: PreferenceManager
 
     private val viewModel: CreditCardDetailViewModel by viewModels()
     private lateinit var billAdapter: CreditCardBillAdapter
@@ -43,16 +49,31 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
         binding.rvBills.layoutManager = LinearLayoutManager(requireContext())
         binding.rvBills.adapter = billAdapter
 
-        spendsAdapter = com.android.billreminder.ui.transactions.TransactionsAdapter {
-            // Handle spend click (edit/delete)
-        }
+        spendsAdapter = com.android.billreminder.ui.transactions.TransactionsAdapter(
+            onRowClick = {
+                // Handle spend click (edit/delete)
+            },
+            onInfoClick = {
+                showAccountingEducationDialog()
+            }
+        )
         binding.rvRecentSpends.layoutManager = LinearLayoutManager(requireContext())
         binding.rvRecentSpends.adapter = spendsAdapter
         binding.rvRecentSpends.isNestedScrollingEnabled = false
 
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
 
+        binding.ivInfoAccounting.setOnClickListener { showAccountingEducationDialog() }
+
         observeState()
+    }
+
+    private fun showAccountingEducationDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Credit Card Spending")
+            .setMessage("This transaction/spending is done using a Credit Card. It will not reflect in your monthly balance or total spend until the bill is paid.")
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun observeState() {
@@ -77,6 +98,8 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
 
                     binding.tvCurrentCycleSpend.text =
                         currencyFormat.format(state.currentCycleSpend / 100.0)
+                    binding.tvBilledDue.text =
+                        currencyFormat.format(state.billedDueAmount / 100.0)
                     binding.tvOutstanding.text =
                         currencyFormat.format(state.outstandingAmount / 100.0)
 
@@ -104,24 +127,55 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
     }
 
     /**
-     * Shows an account picker so the user can choose which bank account to pay from.
+     * Shows a dialog to enter the payment amount, followed by an account picker.
      */
     private fun showPayBillDialog(bill: CreditCardBill) {
         val accounts = viewModel.uiState.value.accounts
         if (accounts.isEmpty()) {
-            Toast.makeText(requireContext(), "No bank accounts found. Add one in Settings.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No source accounts found. Please add a Bank or Cash account first.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val accountNames = accounts.map { "${it.iconEmoji}  ${it.name}" }.toTypedArray()
+        val remainingCents = bill.totalAmountCents - bill.paidAmountCents
+        val dialogView = layoutInflater.inflate(R.layout.dialog_pay_bill, null)
+        val etAmount = dialogView.findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.etAmount)
+        val tvRemaining = dialogView.findViewById<android.widget.TextView>(R.id.tvRemainingAmount)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Pay Bill of ${currencyFormat.format(bill.totalAmountCents / 100.0)}")
-            .setMessage("Select the account to pay from:")
-            .setItems(accountNames) { _, index ->
-                viewModel.payBill(bill, accounts[index].id)
+        tvRemaining.text = currencyFormat.format(remainingCents / 100.0)
+        etAmount.setText((remainingCents / 100.0).toString())
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Record Payment")
+            .setView(dialogView)
+            .setPositiveButton("Next") { dialog, _ ->
+                val amountStr = etAmount.text.toString()
+                val amountDouble = amountStr.toDoubleOrNull() ?: 0.0
+                val amountCents = (amountDouble * 100).toLong()
+
+                if (amountCents <= 0) {
+                    Toast.makeText(requireContext(), "Please enter a valid amount", Toast.LENGTH_SHORT).show()
+                    return@setPositiveButton
+                }
+                
+                showAccountPicker(bill, amountCents, accounts)
+                dialog.dismiss()
             }
             .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showAccountPicker(bill: CreditCardBill, amountCents: Long, accounts: List<com.android.billreminder.data.local.entity.AccountEntity>) {
+        val accountNames = accounts.map { "${it.iconEmoji}  ${it.name}" }.toTypedArray()
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Pay ${currencyFormat.format(amountCents / 100.0)}")
+            .setMessage("Select source account:")
+            .setItems(accountNames) { _, index ->
+                viewModel.payBill(bill, accounts[index].id, amountCents)
+            }
+            .setNegativeButton("Back") { _, _ ->
+                showPayBillDialog(bill)
+            }
             .show()
     }
 

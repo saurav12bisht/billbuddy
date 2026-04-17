@@ -28,6 +28,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import com.android.billreminder.ui.common.util.PreferenceManager
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalTime
@@ -36,6 +38,9 @@ import java.time.format.DateTimeFormatter
 
 @AndroidEntryPoint
 class AddTransactionBottomSheet : BottomSheetDialogFragment() {
+
+    @Inject
+    lateinit var preferenceManager: PreferenceManager
 
     private var _binding: LayoutAddTransactionBinding? = null
     private val binding get() = _binding!!
@@ -112,8 +117,26 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
             viewModel.saveTransaction(
                 binding.etAmount.text.toString(),
                 binding.etNote.text.toString()
-            ) { dismiss() }
+            ) {
+                if (viewModel.isCreditCardSelected.value && !preferenceManager.isCCTransactionTutorialShown) {
+                    showCCTutorialDialog()
+                } else {
+                    dismiss()
+                }
+            }
         }
+    }
+
+    private fun showCCTutorialDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Credit Card Transaction")
+            .setMessage("This transaction is done using a credit card so not added in monthly expense. When the payment is done then it will be seen.")
+            .setPositiveButton("OK") { _, _ -> 
+                preferenceManager.isCCTransactionTutorialShown = true
+                dismiss() 
+            }
+            .setCancelable(false)
+            .show()
     }
 
     // ── State observation ─────────────────────────────────────────────────────

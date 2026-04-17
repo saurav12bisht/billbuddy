@@ -112,13 +112,21 @@ class AccountsFragment : BaseFragment<FragmentAccountsBinding>(FragmentAccountsB
                     }
                 }
 
-                // Summary strip totals (cash / bank / credit) — add to ViewModel if needed
+                // Summary strip totals (cash / bank / credit)
                 launch {
-                    viewModel.totalBalance.collect { totals ->
-                        binding.tvSummaryCash?.text   = CurrencyFormatter.formatUsdCents(totals)
-                        binding.tvSummaryBank?.text   = CurrencyFormatter.formatUsdCents(totals)
-                        binding.tvSummaryCredit?.text = CurrencyFormatter.formatUsdCents(totals)
+                    viewModel.cashTotal.collect { total ->
+                        binding.tvSummaryCash?.text = CurrencyFormatter.formatUsdCents(total)
                         animateSummaryStrip()
+                    }
+                }
+                launch {
+                    viewModel.bankTotal.collect { total ->
+                        binding.tvSummaryBank?.text = CurrencyFormatter.formatUsdCents(total)
+                    }
+                }
+                launch {
+                    viewModel.creditTotal.collect { total ->
+                        binding.tvSummaryCredit?.text = CurrencyFormatter.formatUsdCents(total)
                     }
                 }
             }

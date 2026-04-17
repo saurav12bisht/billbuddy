@@ -22,10 +22,20 @@ data class CreditCardBillEntity(
     val cardId: Long,
     val billingCycleStartDate: Long,
     val billingCycleEndDate: Long,
-    val dueDateMillis: Long,            // Actual due date for this bill
+    val dueDateMillis: Long,
     val totalAmountCents: Long,
-    val isPaid: Boolean = false,
+    val paidAmountCents: Long = 0L,
+    val minimumDueCents: Long? = null,
+    val status: String = BILL_STATUS_OPEN,
+    val isPaid: Boolean = false, // Kept for backward compatibility, though status is preferred
     val paidAt: Long? = null,
-    val paidFromAccountId: Long? = null, // Which account was used to pay
-    val generatedExpenseId: Long? = null // The NORMAL expense entry created when paid
-)
+    val paidFromAccountId: Long? = null,
+    val generatedExpenseId: Long? = null
+) {
+    companion object {
+        const val BILL_STATUS_OPEN = "OPEN"
+        const val BILL_STATUS_PARTIALLY_PAID = "PARTIALLY_PAID"
+        const val BILL_STATUS_PAID = "PAID"
+        const val BILL_STATUS_OVERDUE = "OVERDUE"
+    }
+}

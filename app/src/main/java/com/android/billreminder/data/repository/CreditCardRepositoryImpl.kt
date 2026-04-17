@@ -1,5 +1,6 @@
 package com.android.billreminder.data.repository
 
+import com.android.billreminder.data.local.dao.AccountDao
 import com.android.billreminder.data.local.dao.CreditCardDao
 import com.android.billreminder.data.local.dao.ExpenseDao
 import com.android.billreminder.data.local.entity.ExpenseEntity
@@ -22,6 +23,7 @@ import javax.inject.Inject
 class CreditCardRepositoryImpl @Inject constructor(
     private val creditCardDao: CreditCardDao,
     private val expenseDao: ExpenseDao,
+    private val accountDao: AccountDao,
     @IoDispatcher private val io: CoroutineDispatcher
 ) : CreditCardRepository {
 
@@ -97,35 +99,46 @@ class CreditCardRepositoryImpl @Inject constructor(
     }
 
     /**
-     * Mark a credit card bill as paid:
-     * 1. Creates a real EXPENSE entry so it flows into the user's reports.
-     * 2. Updates the bill record as PAID and links the generated expense.
+     * Records a payment against a credit card bill.
+     * 1. Creates a real EXPENSE entry for the amount.
+     * 2. Updates the bill record (paidAmount, status, etc.).
+     * 3. Deducts amount from the bank balance.
      */
     override suspend fun markBillAsPaid(
         bill: CreditCardBill,
         paidFromAccountId: Long,
-        ccPaymentCategoryId: Long
+        ccPaymentCategoryId: Long,
+        amountCents: Long
     ): Long = withContext(io) {
+        if (amountCents <= 0) return@withContext 0L
         val now = System.currentTimeMillis()
 
-        // 1. Create a NORMAL/EXPENSE entry for the bill amount
+        // 1. Create a NORMAL/EXPENSE entry for the amount
         val paymentExpense = ExpenseEntity(
             id = 0,
             type = "EXPENSE",
             transactionType = TransactionType.NORMAL,
-            amountCents = bill.totalAmountCents,
+            amountCents = amountCents,
             categoryId = ccPaymentCategoryId,
             accountId = paidFromAccountId,
             creditCardId = bill.cardId,
-            note = "Credit card bill payment",
+            note = "Credit card bill payment - ${bill.status}",
             dateMillis = now,
             createdAt = now
         )
         val expenseId = expenseDao.insertExpense(paymentExpense)
 
-        // 2. Mark bill as paid and link the generated expense
+        // 2. Update source account balance (-)
+        accountDao.updateBalance(paidFromAccountId, -amountCents)
+
+        // 3. Update bill status
+        val newPaidAmount = bill.paidAmountCents + amountCents
+        val isFullPayment = newPaidAmount >= bill.totalAmountCents
+        
         val updatedBill = bill.toEntity().copy(
-            isPaid = true,
+            paidAmountCents = newPaidAmount,
+            isPaid = isFullPayment,
+            status = if (isFullPayment) CreditCardBill.BILL_STATUS_PAID else CreditCardBill.BILL_STATUS_PARTIALLY_PAID,
             paidAt = now,
             paidFromAccountId = paidFromAccountId,
             generatedExpenseId = expenseId
@@ -157,7 +170,7 @@ class CreditCardRepositoryImpl @Inject constructor(
             .getTotalSpendForCardInCycle(card.id, cycleStartMillis, cycleEndMillis)
             .first()
 
-        // Only generate a bill if there was spend
+        // Even with 0 spend, we generate a lazy bill if card is active
         val newBill = CreditCardBill(
             id = 0,
             cardId = card.id,
@@ -165,6 +178,8 @@ class CreditCardRepositoryImpl @Inject constructor(
             billingCycleEndDate = cycleEndMillis,
             dueDateMillis = dueDateMillis,
             totalAmountCents = total,
+            paidAmountCents = 0L,
+            status = CreditCardBill.BILL_STATUS_OPEN,
             isPaid = false
         )
         val billId = creditCardDao.insertBill(newBill.toEntity())

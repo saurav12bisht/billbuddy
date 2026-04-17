@@ -77,11 +77,20 @@ class AccountsViewModel @Inject constructor(
         list
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val totalBalance: StateFlow<Long> = walletItems.map { items ->
-        val cash = items.filterIsInstance<WalletListItem.Header>().find { it.type == WalletGroupType.CASH }?.amountCents ?: 0L
-        val banks = items.filterIsInstance<WalletListItem.Header>().find { it.type == WalletGroupType.BANKS }?.amountCents ?: 0L
-        val cards = items.filterIsInstance<WalletListItem.Header>().find { it.type == WalletGroupType.CREDIT_CARDS }?.amountCents ?: 0L
-        (cash + banks) - cards
+    val cashTotal: StateFlow<Long> = walletItems.map { items ->
+        items.filterIsInstance<WalletListItem.Header>().find { it.type == WalletGroupType.CASH }?.amountCents ?: 0L
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+
+    val bankTotal: StateFlow<Long> = walletItems.map { items ->
+        items.filterIsInstance<WalletListItem.Header>().find { it.type == WalletGroupType.BANKS }?.amountCents ?: 0L
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+
+    val creditTotal: StateFlow<Long> = walletItems.map { items ->
+        items.filterIsInstance<WalletListItem.Header>().find { it.type == WalletGroupType.CREDIT_CARDS }?.amountCents ?: 0L
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
+
+    val totalBalance: StateFlow<Long> = combine(cashTotal, bankTotal, creditTotal) { cash, banks, credit ->
+        (cash + banks) - credit
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
 
     fun toggleGroup(type: WalletGroupType) {

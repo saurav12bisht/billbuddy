@@ -41,12 +41,17 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
     // ─────────────────────────────────────────────────────────────────────────
 
     private fun setupRecyclerView() {
-        adapter = TransactionsAdapter { item ->
-            val bundle = Bundle().apply {
-                putLong("transactionId", item.expense.id)
+        adapter = TransactionsAdapter(
+            onRowClick = { item ->
+                val bundle = Bundle().apply {
+                    putLong("transactionId", item.expense.id)
+                }
+                findNavController().navigate(R.id.addTransactionBottomSheet, bundle)
+            },
+            onInfoClick = {
+                showAccountingEducationDialog()
             }
-            findNavController().navigate(R.id.addTransactionBottomSheet, bundle)
-        }
+        )
 
         binding.rvTransactions.layoutManager = LinearLayoutManager(requireContext())
         binding.rvTransactions.adapter = adapter
@@ -134,6 +139,7 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
                             CurrencyFormatter.formatUsdCents(totals.totalExpense)
                         binding.tvMonthlyNetTotal.text =
                             CurrencyFormatter.formatUsdCents(totals.totalIncome - totals.totalExpense)
+                        binding.tvMonthlyNetCreditCardDue.text = CurrencyFormatter.formatUsdCents(totals.totalCreditSpent)
                     }
                 }
 
@@ -176,5 +182,13 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
 
         hintTriggered = true
         SwipeHintHelper.showIfNeeded(requireContext(), binding.rvTransactions)
+    }
+
+    private fun showAccountingEducationDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Credit Card Spending")
+            .setMessage("This transaction/spending is done using a Credit Card. It will not reflect in your monthly balance or total spend until the bill is paid.")
+            .setPositiveButton("OK", null)
+            .show()
     }
 }

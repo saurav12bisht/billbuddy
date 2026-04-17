@@ -19,7 +19,8 @@ import com.android.billreminder.ui.common.util.CurrencyFormatter
 import java.time.format.DateTimeFormatter
 
 class TransactionsAdapter(
-    private val onRowClick: (ExpenseWithCategory) -> Unit
+    private val onRowClick: (ExpenseWithCategory) -> Unit,
+    private val onInfoClick: (ExpenseWithCategory) -> Unit = {}
 ) : ListAdapter<TransactionListItem, RecyclerView.ViewHolder>(DiffCallback) {
 
     companion object {
@@ -78,6 +79,7 @@ class TransactionsAdapter(
                 (holder as RowViewHolder).bind(
                     item       = item.item,
                     onClick    = onRowClick,
+                    onInfoClick = onInfoClick,
                     isFirstAfterHeader = isFirstAfterHeader,
                     position   = position
                 )
@@ -127,6 +129,7 @@ class TransactionsAdapter(
         fun bind(
             item: ExpenseWithCategory,
             onClick: (ExpenseWithCategory) -> Unit,
+            onInfoClick: (ExpenseWithCategory) -> Unit,
             isFirstAfterHeader: Boolean,
             position: Int
         ) {
@@ -146,13 +149,16 @@ class TransactionsAdapter(
             binding.tvCategoryName.text = item.category.name
             binding.tvNote.text         = item.expense.note ?: ""
 
-            // Account label — append card info for credit-card spends
-            val accountInfo = if (item.creditCard != null) {
-                "${item.account.name} (${item.creditCard.bankName} ••${item.creditCard.lastFourDigits})"
-            } else {
-                item.account.name
+            // Payment Mode label
+            val paymentModeLabel = when {
+                item.creditCard != null -> {
+                    "Credit Card (${item.creditCard.bankName} ••••${item.creditCard.lastFourDigits})"
+                }
+                item.account.accountType == com.android.billreminder.data.local.entity.AccountType.CASH -> "CASH"
+                item.account.accountType == com.android.billreminder.data.local.entity.AccountType.BANK -> "Bank Account"
+                else -> item.account.name
             }
-            binding.tvAccountName.text = accountInfo
+            binding.tvAccountName.text = paymentModeLabel
 
             // Amount colour + text
             val amountColor = if (item.expense.type == "INCOME") R.color.income_blue
@@ -161,6 +167,11 @@ class TransactionsAdapter(
                 ContextCompat.getColor(binding.root.context, amountColor)
             )
             binding.tvAmount.text = CurrencyFormatter.formatUsdCents(item.expense.amountCents)
+
+            // Info icon for Credit transactions
+            val isCreditTx = item.expense.transactionType == "CREDIT"
+            binding.ivInfoAccounting.visibility = if (isCreditTx) View.VISIBLE else View.GONE
+            binding.ivInfoAccounting.setOnClickListener { onInfoClick(item) }
 
             binding.root.setOnClickListener { onClick(item) }
 

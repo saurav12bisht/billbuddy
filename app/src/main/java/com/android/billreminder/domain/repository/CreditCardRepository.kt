@@ -34,7 +34,8 @@ interface CreditCardRepository {
     suspend fun markBillAsPaid(
         bill: CreditCardBill,
         paidFromAccountId: Long,
-        ccPaymentCategoryId: Long
+        ccPaymentCategoryId: Long,
+        amountCents: Long
     ): Long
 
     /**

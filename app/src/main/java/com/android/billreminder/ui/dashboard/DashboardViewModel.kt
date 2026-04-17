@@ -20,7 +20,9 @@ data class DashboardUiState(
     val remainingAmountCents: Long = 0,
     val progressPercent: Int = 0,
     val upcomingBills: List<Bill> = emptyList(),
+    val totalIncomeThisMonthCents: Long = 0,
     val totalSpentThisMonthCents: Long = 0,
+    val totalCreditDueCents: Long = 0,
     val totalSpentTodayCents: Long = 0
 )
 
@@ -36,12 +38,12 @@ class DashboardViewModel @Inject constructor(
     val uiState: StateFlow<DashboardUiState> = combine(
         billRepository.getMonthlySummary(monthRange.first, monthRange.second),
         billRepository.getUpcomingBills(System.currentTimeMillis(), System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000L),
-        expenseRepository.getTotalAmountInRange(monthRange.first, monthRange.second),
+        expenseRepository.getMonthlyTotals(monthRange.first, monthRange.second),
         expenseRepository.getTotalAmountInRange(todayRange.first, todayRange.second)
-    ) { (summary, upcoming, monthlyExpenses, todayExpenses) ->
+    ) { (summary, upcoming, monthlyTotals, todayExpenses) ->
         val summaryData = summary as MonthlyBillSummary
         val upcomingData = upcoming as List<Bill>
-        val monthlyExp = monthlyExpenses as Long
+        val totals = monthlyTotals as com.android.billreminder.data.local.dao.MonthlyTotals
         val todayExp = todayExpenses as Long
         
         val progress = if (summaryData.totalAmountCents == 0L) 0 else {
@@ -53,7 +55,9 @@ class DashboardViewModel @Inject constructor(
             remainingAmountCents = summaryData.unpaidAmountCents,
             progressPercent = progress,
             upcomingBills = upcomingData.take(3),
-            totalSpentThisMonthCents = monthlyExp,
+            totalIncomeThisMonthCents = totals.totalIncome,
+            totalSpentThisMonthCents = totals.totalExpense,
+            totalCreditDueCents = totals.totalCreditSpent,
             totalSpentTodayCents = todayExp
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DashboardUiState())

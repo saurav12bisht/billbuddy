@@ -81,6 +81,20 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="$ 1,234.00" />
 
+    <ImageView
+        android:id="@+id/ivInfoAccounting"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginEnd="6dp"
+        android:src="@drawable/outline_info_24"
+        android:alpha="0.5"
+        android:visibility="gone"
+        app:tint="@color/text_secondary"
+        app:layout_constraintBottom_toBottomOf="@+id/tvAmount"
+        app:layout_constraintEnd_toStartOf="@+id/tvAmount"
+        app:layout_constraintTop_toTopOf="@+id/tvAmount"
+        tools:visibility="visible" />
+
     <View
         android:layout_width="0dp"
         android:layout_height="0.5dp"

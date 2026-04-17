@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 data class MonthlyTotals(
     val totalIncome: Long,
-    val totalExpense: Long
+    val totalExpense: Long,
+    val totalCreditSpent: Long
 )
 
 data class DailyTotal(
@@ -39,10 +40,10 @@ interface ExpenseDao {
     @Query("""
         SELECT 
             SUM(CASE WHEN type = 'INCOME' THEN amountCents ELSE 0 END) as totalIncome,
-            SUM(CASE WHEN type = 'EXPENSE' THEN amountCents ELSE 0 END) as totalExpense
+            SUM(CASE WHEN type = 'EXPENSE' AND transactionType = 'NORMAL' THEN amountCents ELSE 0 END) as totalExpense,
+            SUM(CASE WHEN type = 'EXPENSE' AND transactionType = 'CREDIT' THEN amountCents ELSE 0 END) as totalCreditSpent
         FROM expenses 
         WHERE dateMillis BETWEEN :startMillis AND :endMillis
-        AND transactionType = 'NORMAL'
     """)
     fun getMonthlyTotals(startMillis: Long, endMillis: Long): Flow<MonthlyTotals>
 
@@ -115,7 +116,12 @@ interface ExpenseDao {
     /**
      * Total expense in range — excludes CREDIT transactions.
      */
-    @Query("SELECT SUM(amountCents) FROM expenses WHERE type = 'EXPENSE' AND transactionType = 'NORMAL' AND dateMillis BETWEEN :start AND :end")
+    @Query("""
+        SELECT SUM(amountCents) FROM expenses 
+        WHERE type = 'EXPENSE' 
+        AND dateMillis BETWEEN :start AND :end
+        AND transactionType = 'NORMAL'
+    """)
     fun getTotalAmountInRange(start: Long, end: Long): Flow<Long>
 
     /**

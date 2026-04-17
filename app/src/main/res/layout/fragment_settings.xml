@@ -48,7 +48,7 @@
                     android:layout_width="52dp"
                     android:layout_height="52dp"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_home" />
+                    android:src="@drawable/app_icon" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -60,7 +60,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="BillBuddy USA"
+                        android:text="BillBuddy"
                         android:textColor="@color/text_primary"
                         android:textSize="20sp"
                         android:textStyle="bold" />
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             app:cardBackgroundColor="@color/surface"
-            app:cardCornerRadius="28dp"
+            app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
 
             <LinearLayout
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:text="Credit Cards"
+                    android:text="Manage Credit Cards"
                     android:textColor="@color/text_primary"
                     android:textSize="18sp"
                     android:fontFamily="@font/poppins_semibold" />
@@ -118,7 +118,48 @@
                     app:tint="@color/text_hint" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/accounts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="20dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_rupee_notif"
+                    app:tint="@color/accent_purple" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:text="Manage Accounts"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/poppins_semibold" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_back"
+                    android:rotation="180"
+                    app:tint="@color/text_hint" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

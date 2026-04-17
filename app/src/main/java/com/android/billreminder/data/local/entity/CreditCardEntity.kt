@@ -11,5 +11,8 @@ data class CreditCardEntity(
     val lastFourDigits: String,
     val billingDay: Int, // 1 to 31
     val dueDay: Int,     // 1 to 31
+    val creditLimitCents: Long? = null,
+    val cardNetwork: String? = null,
+    val isActive: Boolean = true,
     val createdAt: Long = System.currentTimeMillis()
 )

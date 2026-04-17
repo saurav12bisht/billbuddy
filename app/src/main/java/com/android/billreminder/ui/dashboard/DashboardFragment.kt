@@ -56,6 +56,12 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>(FragmentDashboa
                     // Expense Overviews
                     binding.tvSpentToday.text = CurrencyFormatter.formatUsdCents(state.totalSpentTodayCents)
                     binding.tvSpentMonth.text = CurrencyFormatter.formatUsdCents(state.totalSpentThisMonthCents)
+
+                    // New Financial Summary
+                    binding.tvIncomeMonth.text = CurrencyFormatter.formatUsdCents(state.totalIncomeThisMonthCents)
+                    binding.tvSummaryExpense.text = CurrencyFormatter.formatUsdCents(state.totalSpentThisMonthCents)
+                    binding.tvSummaryBalance.text = CurrencyFormatter.formatUsdCents(state.totalIncomeThisMonthCents - state.totalSpentThisMonthCents)
+                    binding.tvSummaryCCDue.text = CurrencyFormatter.formatUsdCents(state.totalCreditDueCents)
                 }
             }
         }

@@ -43,7 +43,7 @@ class TransactionsViewModel @Inject constructor(
 
     val monthlyTotals: StateFlow<MonthlyTotals> = timeRange.flatMapLatest { range ->
         repository.getMonthlyTotals(range.first, range.second)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MonthlyTotals(0, 0))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MonthlyTotals(0, 0, 0))
 
     private val transactions = timeRange.flatMapLatest { range ->
         repository.getTransactionsByMonth(range.first, range.second)

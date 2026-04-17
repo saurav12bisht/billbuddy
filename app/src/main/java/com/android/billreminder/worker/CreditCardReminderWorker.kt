@@ -22,63 +22,81 @@ import java.util.concurrent.TimeUnit
 class CreditCardReminderWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val creditCardRepository: CreditCardRepository
+    private val creditCardRepository: CreditCardRepository,
+    private val vyapaarDatabase: com.android.billreminder.data.local.VyapaarDatabase
 ) : CoroutineWorker(context, workerParams) {
 
     companion object {
         private const val CHANNEL_ID = "credit_card_reminders"
         private const val CHANNEL_NAME = "Credit Card Reminders"
-        const val TWO_DAYS_MILLIS = 2 * 24 * 60 * 60 * 1000L
     }
 
     private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+    private val logDao = vyapaarDatabase.notificationLogDao()
 
     override suspend fun doWork(): Result {
         ensureNotificationChannel()
 
         val now = System.currentTimeMillis()
-        val twoDaysFromNow = now + TWO_DAYS_MILLIS
-
         val allUnpaidBills = creditCardRepository.getAllUnpaidBills().first()
 
         allUnpaidBills.forEach { bill ->
             val card = creditCardRepository.getCreditCardById(bill.cardId) ?: return@forEach
             val amount = currencyFormat.format(bill.totalAmountCents / 100.0)
 
+            val diffMillis = bill.dueDateMillis - now
+            val daysRemain = TimeUnit.MILLISECONDS.toDays(diffMillis) + 1
+
             when {
-                // ① Overdue — past due date, still unpaid
+                // OVERDUE
                 bill.dueDateMillis < now -> {
                     val daysOverdue = TimeUnit.MILLISECONDS.toDays(now - bill.dueDateMillis)
-                    sendNotification(
-                        id = bill.id.toInt() + 1000,
+                    maybeSendNotification(
+                        billId = bill.id,
+                        reminderType = "OVERDUE_$daysOverdue",
                         title = "⚠️ Overdue: ${card.bankName} Bill",
-                        body = "Your credit card bill of $amount is overdue by $daysOverdue day(s)! Pay immediately to avoid charges."
+                        body = "Your credit card bill of $amount is overdue by $daysOverdue day(s)!"
                     )
                 }
 
-                // ② Due Soon — within 2 days
-                bill.dueDateMillis <= twoDaysFromNow -> {
-                    val daysLeft = TimeUnit.MILLISECONDS.toDays(bill.dueDateMillis - now)
-                    val dayLabel = if (daysLeft == 0L) "today" else "in $daysLeft day(s)"
-                    sendNotification(
-                        id = bill.id.toInt(),
+                // GRADUATED REMINDERS: 7, 5, 3, 1 days before
+                daysRemain in listOf(7L, 5L, 3L, 1L) -> {
+                    val type = "DUE_$daysRemain"
+                    val dayLabel = if (daysRemain == 1L) "tomorrow" else "in $daysRemain days"
+                    maybeSendNotification(
+                        billId = bill.id,
+                        reminderType = type,
                         title = "💳 ${card.bankName} Bill Due $dayLabel",
-                        body = "Your credit card bill of $amount is due $dayLabel. Tap to pay."
+                        body = "Your $amount bill is due $dayLabel. Please pay soon to avoid late fees."
                     )
                 }
-
-                // else: not due yet, no notification
             }
         }
 
         return Result.success()
     }
 
+    private suspend fun maybeSendNotification(
+        billId: Long,
+        reminderType: String,
+        title: String,
+        body: String
+    ) {
+        val existing = logDao.getLog(billId, reminderType)
+        if (existing == null) {
+            sendNotification(billId.toInt(), title, body)
+            logDao.insertLog(com.android.billreminder.data.local.entity.NotificationLogEntity(
+                billId = billId,
+                reminderType = reminderType
+            ))
+        }
+    }
+
     private fun sendNotification(id: Int, title: String, body: String) {
         val manager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.outline_add_24) // safe fallback icon
+            .setSmallIcon(R.drawable.outline_add_24)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))

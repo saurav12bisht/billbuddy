@@ -126,7 +126,7 @@
                 </RelativeLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Stats Row: Current Cycle | Outstanding -->
+            <!-- Stats Row: Current Cycle | Billed Due | Outstanding -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -138,30 +138,76 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
+                    android:layout_marginEnd="4dp"
                     app:cardBackgroundColor="@color/surface"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="14dp"
                     app:cardElevation="0dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="14dp">
-                        <TextView
-                            android:layout_width="wrap_content"
+                        android:padding="12dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Unbilled Spend"
-                            android:fontFamily="@font/poppins_regular"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Unbilled"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="10sp" />
+                            <ImageView
+                                android:id="@+id/ivInfoAccounting"
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_marginStart="4dp"
+                                android:src="@drawable/outline_info_24"
+                                android:alpha="0.6"
+                                app:tint="@color/text_secondary" />
+                        </LinearLayout>
                         <TextView
                             android:id="@+id/tvCurrentCycleSpend"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_bold"
-                            android:textColor="@color/primary"
-                            android:textSize="16sp"
+                            android:textColor="@color/dark_surface_card"
+                            android:textSize="14sp"
                             tools:text="₹4,250" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Billed Due -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"
+                    app:cardBackgroundColor="@color/surface"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Billed Due"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="10sp" />
+                        <TextView
+                            android:id="@+id/tvBilledDue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/expense_red"
+                            android:textSize="14sp"
+                            tools:text="₹7,150" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -170,29 +216,29 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="6dp"
+                    android:layout_marginStart="4dp"
                     app:cardBackgroundColor="@color/surface"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="14dp"
                     app:cardElevation="0dp">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="14dp">
+                        android:padding="12dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Outstanding"
                             android:fontFamily="@font/poppins_regular"
                             android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+                            android:textSize="10sp" />
                         <TextView
                             android:id="@+id/tvOutstanding"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/poppins_bold"
                             android:textColor="@color/error_red"
-                            android:textSize="16sp"
+                            android:textSize="14sp"
                             tools:text="₹11,400" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

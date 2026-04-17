@@ -19,6 +19,13 @@ data class CategoryStat(
     val percentage: Float
 )
 
+data class PaymentModeStat(
+    val name: String,
+    val amountCents: Long,
+    val percentage: Float,
+    val colorHex: String
+)
+
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val repository: ExpenseRepository
@@ -58,6 +65,29 @@ class StatsViewModel @Inject constructor(
                     percentage = (sum.toFloat() / total.toFloat()) * 100f
                 )
             }.sortedByDescending { it.amountCents }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val paymentModeStats: StateFlow<List<PaymentModeStat>> = combine(
+        timeRange.flatMapLatest { repository.getTransactionsByMonth(it.first, it.second) },
+        _type
+    ) { transactions, selectedType ->
+        if (selectedType != "EXPENSE") return@combine emptyList<PaymentModeStat>()
+        
+        val filtered = transactions.filter { it.expense.type == "EXPENSE" }
+        val total = filtered.sumOf { it.expense.amountCents }
+        if (total == 0L) return@combine emptyList<PaymentModeStat>()
+
+        val normalSum = filtered.filter { it.expense.transactionType == "NORMAL" }.sumOf { it.expense.amountCents }
+        val creditSum = filtered.filter { it.expense.transactionType == "CREDIT" }.sumOf { it.expense.amountCents }
+
+        val stats = mutableListOf<PaymentModeStat>()
+        if (normalSum > 0) {
+            stats.add(PaymentModeStat("Bank/Cash", normalSum, (normalSum.toFloat() / total.toFloat()) * 100f, "#2196F3"))
+        }
+        if (creditSum > 0) {
+            stats.add(PaymentModeStat("Credit Card", creditSum, (creditSum.toFloat() / total.toFloat()) * 100f, "#FF9800"))
+        }
+        stats
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun setType(type: String) {

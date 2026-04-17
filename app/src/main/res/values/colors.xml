@@ -52,6 +52,7 @@
     <color name="primary_dark_background">#FFFFFF</color>
     <color name="card_surface">#FFFFFF</color>
     <color name="surface2">#F8F8F8</color>
+    <color name="surface3">#F4F4F4</color>
     <color name="background">#FFFFFF</color>
     <color name="surface">#FFFFFF</color>
     <color name="gradient_start">#E85D4A</color>
