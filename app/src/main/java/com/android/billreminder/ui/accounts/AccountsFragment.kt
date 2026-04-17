@@ -30,8 +30,6 @@ import com.android.billreminder.ui.common.util.CurrencyFormatter
 import com.android.billreminder.ui.creditcards.CreditCardUiModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
 
 @AndroidEntryPoint
 class AccountsFragment : BaseFragment<FragmentAccountsBinding>(FragmentAccountsBinding::inflate) {
@@ -358,16 +356,14 @@ class WalletAdapter(
         private val b: ItemWalletCreditCardBinding
     ) : RecyclerView.ViewHolder(b.root) {
 
-        private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
-
         fun bind(uiModel: CreditCardUiModel) {
             val card = uiModel.card
             b.tvWalletBankName.text    = card.bankName.uppercase()
             b.tvWalletCardName.text    = card.cardName
             b.tvWalletCardNumber.text  = "•••• ${card.lastFourDigits}"
-            b.tvWalletOutstanding.text = currencyFormat.format(uiModel.outstandingAmountCents / 100.0)
+            b.tvWalletOutstanding.text = CurrencyFormatter.formatUsdCents(uiModel.outstandingAmountCents)
             b.tvWalletCycleSpend.text  =
-                "Cycle spend: " + currencyFormat.format(uiModel.currentCycleSpendCents / 100.0)
+                "Cycle spend: ${CurrencyFormatter.formatUsdCents(uiModel.currentCycleSpendCents)}"
 
             b.root.setOnClickListener { onCardClick(uiModel) }
         }

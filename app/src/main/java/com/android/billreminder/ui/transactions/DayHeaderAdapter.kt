@@ -26,8 +26,8 @@ class DayHeaderAdapter : ListAdapter<TransactionListItem.DayHeader, DayHeaderAda
             binding.tvDayBadge.background.setTint(ContextCompat.getColor(binding.root.context, badgeColor))
             
             binding.tvDateLabel.text = header.date.format(DateTimeFormatter.ofPattern("MM.yyyy"))
-            binding.tvDailyIncome.text = "$ " + CurrencyFormatter.formatUsdCents(header.incomeTotal).removePrefix("$")
-            binding.tvDailyExpense.text = "$ " + CurrencyFormatter.formatUsdCents(header.expenseTotal).removePrefix("$")
+            binding.tvDailyIncome.text = CurrencyFormatter.formatUsdCents(header.incomeTotal)
+            binding.tvDailyExpense.text = CurrencyFormatter.formatUsdCents(header.expenseTotal)
         }
     }
 

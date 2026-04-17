@@ -10,12 +10,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.android.billreminder.R
 import com.android.billreminder.domain.repository.CreditCardRepository
+import com.android.billreminder.ui.common.util.CurrencyFormatter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
-import java.text.NumberFormat
-import java.util.Calendar
-import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 @HiltWorker
@@ -31,7 +29,6 @@ class CreditCardReminderWorker @AssistedInject constructor(
         private const val CHANNEL_NAME = "Credit Card Reminders"
     }
 
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
     private val logDao = fingramDatabase.notificationLogDao()
 
     override suspend fun doWork(): Result {
@@ -42,7 +39,7 @@ class CreditCardReminderWorker @AssistedInject constructor(
 
         allUnpaidBills.forEach { bill ->
             val card = creditCardRepository.getCreditCardById(bill.cardId) ?: return@forEach
-            val amount = currencyFormat.format(bill.totalAmountCents / 100.0)
+            val amount = CurrencyFormatter.formatUsdCents(bill.totalAmountCents)
 
             val diffMillis = bill.dueDateMillis - now
             val daysRemain = TimeUnit.MILLISECONDS.toDays(diffMillis) + 1

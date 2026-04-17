@@ -19,6 +19,7 @@ class AppPreferences(private val context: Context) {
         val FIRST_LAUNCH = booleanPreferencesKey("first_launch")
         val LANGUAGE_SELECTED = booleanPreferencesKey("language_selected")
         val LANGUAGE = stringPreferencesKey("language")
+        val CURRENCY_SYMBOL = stringPreferencesKey("currency_symbol")
         val PIN_ENABLED = booleanPreferencesKey("pin_enabled")
         val PIN_HASH = stringPreferencesKey("pin_hash")
         val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
@@ -35,6 +36,10 @@ class AppPreferences(private val context: Context) {
 
     val language: Flow<String> = context.dataStore.data.map { prefs ->
         prefs[Keys.LANGUAGE] ?: "en"
+    }
+
+    val currencySymbol: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[Keys.CURRENCY_SYMBOL] ?: "$"
     }
 
     val isLanguageSelected: Flow<Boolean> = context.dataStore.data.map { prefs ->
@@ -80,6 +85,12 @@ class AppPreferences(private val context: Context) {
         }
     }
 
+    suspend fun setCurrencySymbol(symbol: String) {
+        context.dataStore.edit {
+            it[Keys.CURRENCY_SYMBOL] = symbol
+        }
+    }
+
     suspend fun hasLanguageSelected(): Boolean = isLanguageSelected.first()
 
     suspend fun setPinEnabled(enabled: Boolean, hash: String? = null) {
@@ -115,6 +126,7 @@ class AppPreferences(private val context: Context) {
     }
 
     suspend fun getLanguage(): String = language.first()
+    suspend fun getCurrencySymbol(): String = currencySymbol.first()
     suspend fun getPinHash(): String? = pinHash.first()
     suspend fun getBiometricEnabled(): Boolean = isBiometricEnabled.first()
 

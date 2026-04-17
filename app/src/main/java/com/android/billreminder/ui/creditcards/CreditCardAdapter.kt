@@ -6,16 +6,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.android.billreminder.databinding.ItemCreditCardBinding
-import java.text.NumberFormat
-import java.util.Locale
+import com.android.billreminder.ui.common.util.CurrencyFormatter
 
 class CreditCardAdapter(
     private val onCardClick: (CreditCardUiModel) -> Unit,
     private val onEditClick: (CreditCardUiModel) -> Unit,
     private val onDeleteClick: (CreditCardUiModel) -> Unit
 ) : ListAdapter<CreditCardUiModel, CreditCardAdapter.ViewHolder>(DiffCallback) {
-
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
 
     class ViewHolder(val binding: ItemCreditCardBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -30,7 +27,7 @@ class CreditCardAdapter(
             tvBankName.text = card.bankName.uppercase()
             tvCardName.text = card.cardName
             tvCardNumber.text = "**** **** **** ${card.lastFourDigits}"
-            tvCycleTotal.text = currencyFormat.format(uiModel.currentCycleSpendCents / 100.0)
+            tvCycleTotal.text = CurrencyFormatter.formatUsdCents(uiModel.currentCycleSpendCents)
             tvDueDay.text = "Due: ${formatOrdinal(uiModel.nextDueDay)}"
             root.setOnClickListener { onCardClick(uiModel) }
             btnEdit.setOnClickListener { onEditClick(uiModel) }

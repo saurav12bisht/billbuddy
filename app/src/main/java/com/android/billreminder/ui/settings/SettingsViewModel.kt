@@ -16,7 +16,8 @@ import javax.inject.Inject
 data class ReminderSettingsUiState(
     val sevenDays: Boolean = true,
     val threeDays: Boolean = true,
-    val oneDay: Boolean = true
+    val oneDay: Boolean = true,
+    val currencySymbol: String = "$"
 )
 
 @HiltViewModel
@@ -47,6 +48,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             appPreferences.reminder1DayEnabled.collect { enabled ->
                 _reminderSettings.value = _reminderSettings.value.copy(oneDay = enabled)
+            }
+        }
+        viewModelScope.launch {
+            appPreferences.currencySymbol.collect { symbol ->
+                _reminderSettings.value = _reminderSettings.value.copy(currencySymbol = symbol)
             }
         }
     }
@@ -88,6 +94,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setReminder1Day(enabled: Boolean) {
         viewModelScope.launch { appPreferences.setReminder1DayEnabled(enabled) }
+    }
+
+    fun setCurrencySymbol(symbol: String) {
+        viewModelScope.launch { appPreferences.setCurrencySymbol(symbol) }
     }
 
     // exportTransactions moved to SummaryViewModel

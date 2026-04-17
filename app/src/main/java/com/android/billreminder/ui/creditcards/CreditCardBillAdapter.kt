@@ -8,15 +8,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.android.billreminder.databinding.ItemCreditCardBillBinding
 import com.android.billreminder.domain.model.CreditCardBill
-import java.text.NumberFormat
+import com.android.billreminder.ui.common.util.CurrencyFormatter
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class CreditCardBillAdapter(
     private val onPayClick: (CreditCardBill) -> Unit
 ) : ListAdapter<CreditCardBill, CreditCardBillAdapter.BillViewHolder>(DiffCallback) {
 
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
     private val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BillViewHolder {
@@ -35,23 +35,19 @@ class CreditCardBillAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(bill: CreditCardBill) {
-            // Dates
             val start = dateFormat.format(Date(bill.billingCycleStartDate))
             val end = dateFormat.format(Date(bill.billingCycleEndDate))
             val due = dateFormat.format(Date(bill.dueDateMillis))
-            binding.tvCycleLabel.text = "$start – $end"
+            binding.tvCycleLabel.text = "$start â€“ $end"
             binding.tvDueDate.text = "Due: $due"
+            binding.tvBillAmount.text = CurrencyFormatter.formatUsdCents(bill.totalAmountCents)
 
-            // Amount
-            binding.tvBillAmount.text = currencyFormat.format(bill.totalAmountCents / 100.0)
-
-            // Status
             if (bill.isPaid) {
                 binding.tvStatusBadge.text = "PAID"
                 binding.tvStatusBadge.setTextColor(binding.root.context.getColor(com.android.billreminder.R.color.paid_success))
                 binding.btnPayNow.isVisible = false
                 binding.tvPaidFrom.isVisible = true
-                binding.tvPaidFrom.text = "Paid ✅"
+                binding.tvPaidFrom.text = "Paid âœ…"
             } else {
                 val now = System.currentTimeMillis()
                 val isOverdue = bill.dueDateMillis < now

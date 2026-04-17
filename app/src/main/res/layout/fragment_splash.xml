@@ -10,6 +10,7 @@
         android:id="@+id/decorativeArc"
         android:layout_width="0dp"
         android:layout_height="120dp"
+        android:visibility="gone"
         android:background="@drawable/splash_arc"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

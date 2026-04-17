@@ -16,14 +16,13 @@ import com.android.billreminder.data.local.entity.AccountEntity
 import com.android.billreminder.databinding.FragmentCreditCardDetailBinding
 import com.android.billreminder.domain.model.CreditCardBill
 import com.android.billreminder.ui.common.BaseFragment
+import com.android.billreminder.ui.common.util.CurrencyFormatter
 import com.android.billreminder.ui.common.util.PreferenceManager
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,7 +36,6 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
     private val viewModel: CreditCardDetailViewModel by viewModels()
     private lateinit var billAdapter: CreditCardBillAdapter
     private lateinit var spendsAdapter: com.android.billreminder.ui.transactions.TransactionsAdapter
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
 
     override fun onInit() {
         billAdapter = CreditCardBillAdapter { bill ->
@@ -75,17 +73,17 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
                     binding.progressBar.isVisible = state.isLoading
 
                     state.card?.let { card ->
-                        binding.toolbar.title = "${card.bankName} ••••${card.lastFourDigits}"
+                        binding.toolbar.title = "${card.bankName} â€¢â€¢â€¢â€¢${card.lastFourDigits}"
                         binding.tvCardBankName.text = card.bankName.uppercase()
                         binding.tvCardName.text = card.cardName
-                        binding.tvCardNumber.text = "••••  ••••  ••••  ${card.lastFourDigits}"
+                        binding.tvCardNumber.text = "â€¢â€¢â€¢â€¢  â€¢â€¢â€¢â€¢  â€¢â€¢â€¢â€¢  ${card.lastFourDigits}"
                         binding.tvBillingDay.text = "Starts on ${card.billingDay}${getDayOfMonthSuffix(card.billingDay)}"
                         binding.tvDueDay.text = "Due on ${card.dueDay}${getDayOfMonthSuffix(card.dueDay)}"
                     }
 
-                    binding.tvCurrentCycleSpend.text = currencyFormat.format(state.currentCycleSpend / 100.0)
-                    binding.tvBilledDue.text = currencyFormat.format(state.billedDueAmount / 100.0)
-                    binding.tvOutstanding.text = currencyFormat.format(state.outstandingAmount / 100.0)
+                    binding.tvCurrentCycleSpend.text = CurrencyFormatter.formatUsdCents(state.currentCycleSpend)
+                    binding.tvBilledDue.text = CurrencyFormatter.formatUsdCents(state.billedDueAmount)
+                    binding.tvOutstanding.text = CurrencyFormatter.formatUsdCents(state.outstandingAmount)
 
                     val spendItems = state.recentSpends.map { expenseWithCategory ->
                         com.android.billreminder.ui.transactions.TransactionListItem.TransactionRow(expenseWithCategory)
@@ -142,7 +140,7 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
             tilSourceAccount.error = null
         }
 
-        tvRemaining.text = currencyFormat.format(remainingCents / 100.0)
+        tvRemaining.text = CurrencyFormatter.formatUsdCents(remainingCents)
         etAmount.setText((remainingCents / 100.0).toString())
 
         val dialog = AlertDialog.Builder(requireContext())
