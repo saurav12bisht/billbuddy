@@ -15,12 +15,12 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.android.billreminder"
+        applicationId = "com.android.fingram"
         minSdk = 26
         targetSdk = 36
         versionCode = 4
         versionName = "1.2"
-        testInstrumentationRunner = "com.android.billreminder.CustomTestRunner"
+        testInstrumentationRunner = "com.android.fingram.CustomTestRunner"
     }
 
     signingConfigs {
