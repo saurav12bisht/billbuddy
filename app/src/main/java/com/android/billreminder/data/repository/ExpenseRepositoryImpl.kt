@@ -63,6 +63,10 @@ class ExpenseRepositoryImpl @Inject constructor(
         expenseDao.getExpenseById(id)
     }
 
+    override suspend fun getLatestTransactionEntity(): ExpenseEntity? = withContext(io) {
+        expenseDao.getLatestTransaction()
+    }
+
     override suspend fun updateExpense(expense: Expense) = withContext(io) {
         expenseDao.updateExpense(expense.toEntity())
     }

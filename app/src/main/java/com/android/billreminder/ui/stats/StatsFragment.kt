@@ -64,8 +64,9 @@ class StatsFragment : BaseFragment<FragmentStatsBinding>(FragmentStatsBinding::i
     private fun setupListeners() {
         binding.btnPrevMonth.setOnClickListener { viewModel.previousMonth() }
         binding.btnNextMonth.setOnClickListener { viewModel.nextMonth() }
-        binding.btnTypeExpense.setOnClickListener { viewModel.setType("EXPENSE") }
-        binding.btnTypeIncome.setOnClickListener { viewModel.setType("INCOME") }
+        binding.btnTypeExpense.setOnClickListener { viewModel.setType(StatsFilterType.EXPENSE) }
+        binding.btnTypeIncome.setOnClickListener { viewModel.setType(StatsFilterType.INCOME) }
+        binding.btnTypeCreditCardDue.setOnClickListener { viewModel.setType(StatsFilterType.CREDIT_CARD_DUE) }
     }
 
     private fun observeState() {
@@ -78,11 +79,7 @@ class StatsFragment : BaseFragment<FragmentStatsBinding>(FragmentStatsBinding::i
                 }
                 launch {
                     viewModel.type.collect { type ->
-                        val isExpense = type == "EXPENSE"
-                        binding.btnTypeExpense.setBackgroundColor(if (isExpense) ContextCompat.getColor(requireContext(), R.color.expense_red) else Color.TRANSPARENT)
-                        binding.btnTypeExpense.setTextColor(if (isExpense) Color.WHITE else ContextCompat.getColor(requireContext(), R.color.text_secondary))
-                        binding.btnTypeIncome.setBackgroundColor(if (!isExpense) ContextCompat.getColor(requireContext(), R.color.income_blue) else Color.TRANSPARENT)
-                        binding.btnTypeIncome.setTextColor(if (!isExpense) Color.WHITE else ContextCompat.getColor(requireContext(), R.color.text_secondary))
+                        updateTypeButtons(type)
                     }
                 }
                 launch {
@@ -100,6 +97,33 @@ class StatsFragment : BaseFragment<FragmentStatsBinding>(FragmentStatsBinding::i
                 }
             }
         }
+    }
+
+    private fun updateTypeButtons(type: StatsFilterType) {
+        val expenseSelected = type == StatsFilterType.EXPENSE
+        val incomeSelected = type == StatsFilterType.INCOME
+        val creditSelected = type == StatsFilterType.CREDIT_CARD_DUE
+
+        binding.btnTypeExpense.setBackgroundColor(
+            if (expenseSelected) ContextCompat.getColor(requireContext(), R.color.expense_red) else Color.TRANSPARENT
+        )
+        binding.btnTypeExpense.setTextColor(
+            if (expenseSelected) Color.WHITE else ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        )
+
+        binding.btnTypeIncome.setBackgroundColor(
+            if (incomeSelected) ContextCompat.getColor(requireContext(), R.color.income_blue) else Color.TRANSPARENT
+        )
+        binding.btnTypeIncome.setTextColor(
+            if (incomeSelected) Color.WHITE else ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        )
+
+        binding.btnTypeCreditCardDue.setBackgroundColor(
+            if (creditSelected) ContextCompat.getColor(requireContext(), R.color.text_primary) else Color.TRANSPARENT
+        )
+        binding.btnTypeCreditCardDue.setTextColor(
+            if (creditSelected) Color.WHITE else ContextCompat.getColor(requireContext(), R.color.text_secondary)
+        )
     }
 
     private fun updateUi(stats: List<CategoryStat>) {

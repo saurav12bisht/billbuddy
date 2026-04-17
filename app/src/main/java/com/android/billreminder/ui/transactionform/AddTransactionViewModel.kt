@@ -3,15 +3,13 @@ package com.android.billreminder.ui.transactionform
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.billreminder.data.local.entity.AccountEntity
+import com.android.billreminder.data.local.entity.AccountType
 import com.android.billreminder.data.local.entity.CategoryEntity
-import com.android.billreminder.data.local.entity.CreditCardBillEntity
-import com.android.billreminder.data.local.entity.CreditCardEntity
 import com.android.billreminder.data.local.entity.ExpenseEntity
 import com.android.billreminder.data.local.entity.TransactionType
 import com.android.billreminder.domain.model.CreditCard
 import com.android.billreminder.domain.repository.CreditCardRepository
 import com.android.billreminder.domain.repository.ExpenseRepository
-import com.android.billreminder.domain.model.toDomain
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -66,6 +64,7 @@ class AddTransactionViewModel @Inject constructor(
 
     private var editingTransactionId: Long? = null
     private var originalTransaction: ExpenseEntity? = null
+    private var hasAppliedLastTransactionDefaults = false
 
     val isEditMode: Boolean get() = editingTransactionId != null
 
@@ -97,6 +96,10 @@ class AddTransactionViewModel @Inject constructor(
 
     val creditCards: StateFlow<List<CreditCard>> = creditCardRepository.getAllCreditCards()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    init {
+        preselectLastUsedPaymentSource()
+    }
 
     fun loadTransaction(id: Long) {
         viewModelScope.launch {
@@ -137,6 +140,57 @@ class AddTransactionViewModel @Inject constructor(
                         _isBankSelected.value = true
                         _selectedBankAccountId.value = account.id
                     }
+                }
+            }
+        }
+    }
+
+    private fun preselectLastUsedPaymentSource() {
+        viewModelScope.launch {
+            val lastTransaction = repository.getLatestTransactionEntity() ?: return@launch
+            if (hasAppliedLastTransactionDefaults || isEditMode) return@launch
+
+            val allAccounts = repository.getAllAccounts().first()
+            val baseAccounts = allAccounts.filter {
+                it.name == "Cash" || it.name == "Bank" || it.name == "Credit Card"
+            }
+
+            if (allAccounts.isEmpty() || baseAccounts.isEmpty()) return@launch
+
+            if (lastTransaction.transactionType == TransactionType.CREDIT) {
+                val lastCardId = lastTransaction.creditCardId ?: return@launch
+                val baseCreditAccount = baseAccounts.firstOrNull { it.name == "Credit Card" } ?: return@launch
+                val cardExists = creditCardRepository.getAllCreditCards().first().any { it.id == lastCardId }
+                if (!cardExists) return@launch
+
+                _selectedAccountId.value = baseCreditAccount.id
+                _isCreditCardSelected.value = true
+                _isBankSelected.value = false
+                _selectedCreditCardId.value = lastCardId
+                _selectedBankAccountId.value = null
+                hasAppliedLastTransactionDefaults = true
+                return@launch
+            }
+
+            val lastAccount = allAccounts.firstOrNull { it.id == lastTransaction.accountId } ?: return@launch
+            when {
+                lastAccount.name == "Cash" -> {
+                    _selectedAccountId.value = lastAccount.id
+                    _isCreditCardSelected.value = false
+                    _isBankSelected.value = false
+                    _selectedCreditCardId.value = null
+                    _selectedBankAccountId.value = null
+                    hasAppliedLastTransactionDefaults = true
+                }
+
+                lastAccount.accountType == AccountType.BANK && lastAccount.name != "Bank" -> {
+                    val baseBankAccount = baseAccounts.firstOrNull { it.name == "Bank" } ?: return@launch
+                    _selectedAccountId.value = baseBankAccount.id
+                    _isCreditCardSelected.value = false
+                    _isBankSelected.value = true
+                    _selectedBankAccountId.value = lastAccount.id
+                    _selectedCreditCardId.value = null
+                    hasAppliedLastTransactionDefaults = true
                 }
             }
         }

@@ -22,6 +22,7 @@ interface ExpenseRepository {
     suspend fun saveExpense(expense: Expense): Long
     suspend fun getExpenseById(id: Long): Expense?
     suspend fun getExpenseByIdEntity(id: Long): ExpenseEntity?
+    suspend fun getLatestTransactionEntity(): ExpenseEntity?
     suspend fun updateExpense(expense: Expense)
 
     fun getAllCategories(): Flow<List<CategoryEntity>>

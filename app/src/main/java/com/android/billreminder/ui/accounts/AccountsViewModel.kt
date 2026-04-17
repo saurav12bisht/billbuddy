@@ -89,8 +89,8 @@ class AccountsViewModel @Inject constructor(
         items.filterIsInstance<WalletListItem.Header>().find { it.type == WalletGroupType.CREDIT_CARDS }?.amountCents ?: 0L
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
 
-    val totalBalance: StateFlow<Long> = combine(cashTotal, bankTotal, creditTotal) { cash, banks, credit ->
-        (cash + banks) - credit
+    val totalBalance: StateFlow<Long> = combine(cashTotal, bankTotal) { cash, banks ->
+        cash + banks
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0L)
 
     fun toggleGroup(type: WalletGroupType) {

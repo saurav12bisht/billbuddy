@@ -126,7 +126,7 @@ class AccountsFragment : BaseFragment<FragmentAccountsBinding>(FragmentAccountsB
                 }
                 launch {
                     viewModel.creditTotal.collect { total ->
-                        binding.tvSummaryCredit?.text = CurrencyFormatter.formatUsdCents(total)
+                        binding.tvSummaryCredit?.text = CurrencyFormatter.formatUsdCents(-total)
                     }
                 }
             }
@@ -290,7 +290,8 @@ class WalletAdapter(
             b.tvHeaderTitle.text = title
 
             // Show total amount on header
-            b.tvHeaderTotal.text = CurrencyFormatter.formatUsdCents(h.amountCents)
+            val displayAmount = if (h.type == WalletGroupType.CREDIT_CARDS) -h.amountCents else h.amountCents
+            b.tvHeaderTotal.text = CurrencyFormatter.formatUsdCents(displayAmount)
 
             // Smooth arrow rotation — points down when expanded, right when collapsed
             val targetRotation = if (h.isExpanded) 90f else 0f

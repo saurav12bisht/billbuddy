@@ -2,7 +2,7 @@ package com.android.billreminder.ui.stats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.billreminder.data.local.entity.ExpenseWithCategory
+import com.android.billreminder.data.local.entity.TransactionType
 import com.android.billreminder.domain.repository.ExpenseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -26,6 +26,12 @@ data class PaymentModeStat(
     val colorHex: String
 )
 
+enum class StatsFilterType {
+    EXPENSE,
+    INCOME,
+    CREDIT_CARD_DUE
+}
+
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val repository: ExpenseRepository
@@ -34,8 +40,8 @@ class StatsViewModel @Inject constructor(
     private val _currentMonth = MutableStateFlow(YearMonth.now())
     val currentMonth: StateFlow<YearMonth> = _currentMonth.asStateFlow()
 
-    private val _type = MutableStateFlow("EXPENSE")
-    val type: StateFlow<String> = _type.asStateFlow()
+    private val _type = MutableStateFlow(StatsFilterType.EXPENSE)
+    val type: StateFlow<StatsFilterType> = _type.asStateFlow()
 
     private val timeRange = _currentMonth.map { ym ->
         val start = ym.atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -47,9 +53,20 @@ class StatsViewModel @Inject constructor(
         timeRange.flatMapLatest { repository.getTransactionsByMonth(it.first, it.second) },
         _type
     ) { transactions, selectedType ->
-        val filtered = transactions.filter { it.expense.type == selectedType }
+        val filtered = transactions.filter { transaction ->
+            when (selectedType) {
+                StatsFilterType.EXPENSE ->
+                    transaction.expense.type == "EXPENSE" &&
+                        transaction.expense.transactionType == TransactionType.NORMAL
+                StatsFilterType.INCOME ->
+                    transaction.expense.type == "INCOME"
+                StatsFilterType.CREDIT_CARD_DUE ->
+                    transaction.expense.type == "EXPENSE" &&
+                        transaction.expense.transactionType == TransactionType.CREDIT
+            }
+        }
         val total = filtered.sumOf { it.expense.amountCents }
-        
+
         if (total == 0L) return@combine emptyList<CategoryStat>()
 
         filtered.groupBy { it.category.id }
@@ -71,26 +88,25 @@ class StatsViewModel @Inject constructor(
         timeRange.flatMapLatest { repository.getTransactionsByMonth(it.first, it.second) },
         _type
     ) { transactions, selectedType ->
-        if (selectedType != "EXPENSE") return@combine emptyList<PaymentModeStat>()
-        
-        val filtered = transactions.filter { it.expense.type == "EXPENSE" }
+        if (selectedType != StatsFilterType.EXPENSE) return@combine emptyList<PaymentModeStat>()
+
+        val filtered = transactions.filter {
+            it.expense.type == "EXPENSE" &&
+                it.expense.transactionType == TransactionType.NORMAL
+        }
         val total = filtered.sumOf { it.expense.amountCents }
         if (total == 0L) return@combine emptyList<PaymentModeStat>()
 
-        val normalSum = filtered.filter { it.expense.transactionType == "NORMAL" }.sumOf { it.expense.amountCents }
-        val creditSum = filtered.filter { it.expense.transactionType == "CREDIT" }.sumOf { it.expense.amountCents }
+        val normalSum = filtered.sumOf { it.expense.amountCents }
 
         val stats = mutableListOf<PaymentModeStat>()
         if (normalSum > 0) {
-            stats.add(PaymentModeStat("Bank/Cash", normalSum, (normalSum.toFloat() / total.toFloat()) * 100f, "#2196F3"))
-        }
-        if (creditSum > 0) {
-            stats.add(PaymentModeStat("Credit Card", creditSum, (creditSum.toFloat() / total.toFloat()) * 100f, "#FF9800"))
+            stats.add(PaymentModeStat("Cash / Bank", normalSum, (normalSum.toFloat() / total.toFloat()) * 100f, "#2196F3"))
         }
         stats
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun setType(type: String) {
+    fun setType(type: StatsFilterType) {
         _type.value = type
     }
 
