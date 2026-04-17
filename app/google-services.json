@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "67989701335",
-    "project_id": "vyapaar-hisaaab",
-    "storage_bucket": "vyapaar-hisaaab.firebasestorage.app"
+    "project_number": "982284488961",
+    "project_id": "fingram-5a6c0",
+    "storage_bucket": "fingram-5a6c0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:67989701335:android:cf41ba0912c7e1ba4f6692",
+        "mobilesdk_app_id": "1:982284488961:android:f18cae5ee380c5e73a0b00",
         "android_client_info": {
-          "package_name": "com.android.billreminder"
+          "package_name": "com.android.fingram"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDyVJQfGT_Rc5rMSyyxxGKMZeeWazlZXUo"
+          "current_key": "AIzaSyD97wi9EsAb17-kiZLeEcKyS76zylSolYo"
         }
       ],
       "services": {
