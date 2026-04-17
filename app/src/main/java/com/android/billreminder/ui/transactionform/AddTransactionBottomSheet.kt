@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.content.getSystemService
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -66,6 +68,10 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
 
         setupListeners()
         observeState()
+
+        if (transactionId == -1L) {
+            focusAmountInput()
+        }
     }
 
     // ── Listeners ────────────────────────────────────────────────────────────
@@ -453,6 +459,14 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun focusAmountInput() {
+        binding.etAmount.post {
+            binding.etAmount.requestFocus()
+            val imm = requireContext().getSystemService<InputMethodManager>()
+            imm?.showSoftInput(binding.etAmount, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     override fun onDestroyView() {
