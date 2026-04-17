@@ -31,7 +31,6 @@ class StatsFragment : BaseFragment<FragmentStatsBinding>(FragmentStatsBinding::i
 
     private val viewModel: StatsViewModel by viewModels()
     private lateinit var categoryAdapter: CategoryStatsAdapter
-    private lateinit var paymentModeAdapter: PaymentModeStatsAdapter
 
     override fun onInit() {
         setupChart()
@@ -55,10 +54,6 @@ class StatsFragment : BaseFragment<FragmentStatsBinding>(FragmentStatsBinding::i
         categoryAdapter = CategoryStatsAdapter()
         binding.rvCategoryBreakdown.layoutManager = LinearLayoutManager(requireContext())
         binding.rvCategoryBreakdown.adapter = categoryAdapter
-
-        paymentModeAdapter = PaymentModeStatsAdapter()
-        binding.rvPaymentModeBreakdown.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvPaymentModeBreakdown.adapter = paymentModeAdapter
     }
 
     private fun setupListeners() {
@@ -85,14 +80,6 @@ class StatsFragment : BaseFragment<FragmentStatsBinding>(FragmentStatsBinding::i
                 launch {
                     viewModel.categoryStats.collect { stats ->
                         updateUi(stats)
-                    }
-                }
-                launch {
-                    viewModel.paymentModeStats.collect { stats ->
-                        paymentModeAdapter.submitList(stats)
-                        val show = stats.isNotEmpty()
-                        binding.tvPaymentModeHeader.visibility = if (show) View.VISIBLE else View.GONE
-                        binding.rvPaymentModeBreakdown.visibility = if (show) View.VISIBLE else View.GONE
                     }
                 }
             }
@@ -166,27 +153,6 @@ class StatsFragment : BaseFragment<FragmentStatsBinding>(FragmentStatsBinding::i
         object DiffCallback : DiffUtil.ItemCallback<CategoryStat>() {
             override fun areItemsTheSame(old: CategoryStat, new: CategoryStat) = old.categoryId == new.categoryId
             override fun areContentsTheSame(old: CategoryStat, new: CategoryStat) = old == new
-        }
-    }
-
-    class PaymentModeStatsAdapter : ListAdapter<PaymentModeStat, PaymentModeStatsAdapter.ViewHolder>(DiffCallback) {
-        class ViewHolder(private val binding: ItemCategoryStatBinding) : RecyclerView.ViewHolder(binding.root) {
-            fun bind(stat: PaymentModeStat) {
-                binding.vColorDot.background.setTint(Color.parseColor(stat.colorHex))
-                binding.tvCatName.text = stat.name
-                binding.tvAmount.text = CurrencyFormatter.formatUsdCents(stat.amountCents)
-                binding.tvPercentage.text = String.format("%.1f%%", stat.percentage)
-                binding.pbCategory.progress = stat.percentage.toInt()
-                binding.pbCategory.progressDrawable.setTint(Color.parseColor(stat.colorHex))
-            }
-        }
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(
-            ItemCategoryStatBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        )
-        override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(getItem(position))
-        object DiffCallback : DiffUtil.ItemCallback<PaymentModeStat>() {
-            override fun areItemsTheSame(old: PaymentModeStat, new: PaymentModeStat) = old.name == new.name
-            override fun areContentsTheSame(old: PaymentModeStat, new: PaymentModeStat) = old == new
         }
     }
 }

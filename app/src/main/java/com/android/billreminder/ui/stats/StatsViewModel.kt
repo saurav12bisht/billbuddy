@@ -19,13 +19,6 @@ data class CategoryStat(
     val percentage: Float
 )
 
-data class PaymentModeStat(
-    val name: String,
-    val amountCents: Long,
-    val percentage: Float,
-    val colorHex: String
-)
-
 enum class StatsFilterType {
     EXPENSE,
     INCOME,
@@ -82,28 +75,6 @@ class StatsViewModel @Inject constructor(
                     percentage = (sum.toFloat() / total.toFloat()) * 100f
                 )
             }.sortedByDescending { it.amountCents }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val paymentModeStats: StateFlow<List<PaymentModeStat>> = combine(
-        timeRange.flatMapLatest { repository.getTransactionsByMonth(it.first, it.second) },
-        _type
-    ) { transactions, selectedType ->
-        if (selectedType != StatsFilterType.EXPENSE) return@combine emptyList<PaymentModeStat>()
-
-        val filtered = transactions.filter {
-            it.expense.type == "EXPENSE" &&
-                it.expense.transactionType == TransactionType.NORMAL
-        }
-        val total = filtered.sumOf { it.expense.amountCents }
-        if (total == 0L) return@combine emptyList<PaymentModeStat>()
-
-        val normalSum = filtered.sumOf { it.expense.amountCents }
-
-        val stats = mutableListOf<PaymentModeStat>()
-        if (normalSum > 0) {
-            stats.add(PaymentModeStat("Cash / Bank", normalSum, (normalSum.toFloat() / total.toFloat()) * 100f, "#2196F3"))
-        }
-        stats
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun setType(type: StatsFilterType) {
