@@ -18,8 +18,8 @@ android {
         applicationId = "com.android.fingram"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.2"
+        versionCode = 1
+        versionName = "1"
         testInstrumentationRunner = "com.android.fingram.CustomTestRunner"
     }
 
