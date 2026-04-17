@@ -112,6 +112,9 @@ class TransactionsFragment : BaseFragment<FragmentTransactionsBinding>(FragmentT
         binding.fabAdd.setOnClickListener {
             findNavController().navigate(R.id.addTransactionBottomSheet)
         }
+        binding.llCreditCard.setOnClickListener {
+            findNavController().navigate(R.id.creditCardListFragment)
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
