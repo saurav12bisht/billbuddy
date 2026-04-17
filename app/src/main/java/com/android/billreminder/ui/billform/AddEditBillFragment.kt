@@ -30,11 +30,7 @@ class AddEditBillFragment : BaseFragment<FragmentAddEditBillBinding>(FragmentAdd
     private var lastPaidAt: Long? = null
 
     override fun onInit() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, 0)
-            insets
-        }
+
         existingBillId = arguments?.getLong("billId", -1L) ?: -1L
         setupToolbar()
         setupDropdowns()

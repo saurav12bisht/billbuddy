@@ -37,11 +37,6 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
     private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
 
     override fun onInit() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, 0)
-            insets
-        }
 
         billAdapter = CreditCardBillAdapter { bill ->
             showPayBillDialog(bill)

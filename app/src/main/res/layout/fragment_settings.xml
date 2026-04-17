@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:cardBackgroundColor="@color/surface_variant"
-            app:cardCornerRadius="32dp"
+            app:cardCornerRadius="12dp"
             app:cardElevation="0dp">
 
             <LinearLayout

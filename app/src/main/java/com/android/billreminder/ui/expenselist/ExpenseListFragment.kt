@@ -28,11 +28,7 @@ class ExpenseListFragment : BaseFragment<FragmentExpenseListBinding>(FragmentExp
     private lateinit var expenseListAdapter: ExpenseListAdapter
 
     override fun onInit() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, 0)
-            insets
-        }
+
 
         setupList()
         bindState()

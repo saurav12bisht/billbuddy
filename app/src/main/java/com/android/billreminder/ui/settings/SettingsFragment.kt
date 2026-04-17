@@ -21,12 +21,6 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>(FragmentSettingsB
     private val viewModel: SettingsViewModel by viewModels()
 
     override fun onInit() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.rootView) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, systemBars.top, 0, systemBars.bottom)
-            insets
-        }
-
         binding.switchReminder7.setOnCheckedChangeListener { _, isChecked ->
             viewModel.setReminder7Days(isChecked)
         }

@@ -1,9 +1,6 @@
 package com.android.billreminder.ui.creditcards
 
-import android.os.Bundle
 import android.widget.Toast
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -23,11 +20,7 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
     private var existingCardId: Long = -1L
 
     override fun onInit() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, 0)
-            insets
-        }
+
 
         existingCardId = args.cardId
         setupToolbar()

@@ -46,11 +46,7 @@ class AddEditExpenseFragment : BaseFragment<FragmentAddEditExpenseBinding>(
     private var creditCardsList: List<CreditCard> = emptyList()
 
     override fun onInit() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { view, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, bars.top, 0, 0)
-            insets
-        }
+
         existingExpenseId = arguments?.getLong("expenseId", -1L) ?: -1L
         binding.toolbar.title = if (existingExpenseId > 0L) "Edit Expense" else "Add Expense"
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
