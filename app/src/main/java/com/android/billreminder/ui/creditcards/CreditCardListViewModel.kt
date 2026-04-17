@@ -85,4 +85,8 @@ class CreditCardListViewModel @Inject constructor(
 
         return Pair(start.timeInMillis, end.timeInMillis)
     }
+
+    fun deleteCreditCard(card: CreditCard) = viewModelScope.launch {
+        repository.deleteCreditCard(card)
+    }
 }

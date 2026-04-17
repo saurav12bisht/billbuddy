@@ -10,7 +10,9 @@ import java.text.NumberFormat
 import java.util.Locale
 
 class CreditCardAdapter(
-    private val onCardClick: (CreditCardUiModel) -> Unit
+    private val onCardClick: (CreditCardUiModel) -> Unit,
+    private val onEditClick: (CreditCardUiModel) -> Unit,
+    private val onDeleteClick: (CreditCardUiModel) -> Unit
 ) : ListAdapter<CreditCardUiModel, CreditCardAdapter.ViewHolder>(DiffCallback) {
 
     private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
@@ -31,11 +33,16 @@ class CreditCardAdapter(
             tvCycleTotal.text = currencyFormat.format(uiModel.currentCycleSpendCents / 100.0)
             tvDueDay.text = "Due: ${formatOrdinal(uiModel.nextDueDay)}"
             root.setOnClickListener { onCardClick(uiModel) }
+            btnEdit.setOnClickListener { onEditClick(uiModel) }
+            btnDelete.setOnClickListener { onDeleteClick(uiModel) }
         }
     }
 
     private fun formatOrdinal(d: Int) = "$d" + if (d in 11..13) "th" else when (d % 10) {
-        1 -> "st"; 2 -> "nd"; 3 -> "rd"; else -> "th"
+        1 -> "st"
+        2 -> "nd"
+        3 -> "rd"
+        else -> "th"
     }
 
     companion object DiffCallback : DiffUtil.ItemCallback<CreditCardUiModel>() {

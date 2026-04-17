@@ -105,6 +105,12 @@
         android:label="@string/settings"
         tools:layout="@layout/fragment_settings" />
 
+    <fragment
+        android:id="@+id/manageAccountsFragment"
+        android:name="com.android.billreminder.ui.accounts.ManageAccountsFragment"
+        android:label="Accounts"
+        tools:layout="@layout/fragment_manage_accounts" />
+
     <!-- Credit Card Module -->
     <fragment
         android:id="@+id/creditCardListFragment"

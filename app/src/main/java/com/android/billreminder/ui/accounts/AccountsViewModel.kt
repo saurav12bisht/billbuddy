@@ -105,6 +105,16 @@ class AccountsViewModel @Inject constructor(
         }
     }
 
+    fun updateAccount(account: AccountEntity) {
+        viewModelScope.launch {
+            repository.updateAccount(account)
+        }
+    }
+
+    suspend fun getAccountById(accountId: Long): AccountEntity? {
+        return repository.getAccountById(accountId)
+    }
+
     fun deleteAccount(account: AccountEntity) {
         viewModelScope.launch {
             repository.deleteAccount(account)

@@ -44,6 +44,10 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>(FragmentSettingsB
             findNavController().navigate(R.id.creditCardListFragment)
         }
 
+        binding.accounts.setOnClickListener {
+            findNavController().navigate(R.id.manageAccountsFragment)
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.reminderSettings.collect { settings ->

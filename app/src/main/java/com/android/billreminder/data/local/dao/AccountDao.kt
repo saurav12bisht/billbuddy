@@ -15,8 +15,14 @@ interface AccountDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAccount(account: AccountEntity): Long
 
+    @Update
+    suspend fun updateAccount(account: AccountEntity)
+
     @Query("UPDATE accounts SET balanceCents = balanceCents + :delta WHERE id = :accountId")
     suspend fun updateBalance(accountId: Long, delta: Long)
+
+    @Query("SELECT * FROM accounts WHERE id = :accountId LIMIT 1")
+    suspend fun getAccountById(accountId: Long): AccountEntity?
 
     @Delete
     suspend fun deleteAccount(account: AccountEntity)

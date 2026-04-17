@@ -33,6 +33,8 @@ interface ExpenseRepository {
     fun getAllAccounts(): Flow<List<AccountEntity>>
     fun getAccountsByType(type: String): Flow<List<AccountEntity>>
     suspend fun insertAccount(account: AccountEntity): Long
+    suspend fun updateAccount(account: AccountEntity)
+    suspend fun getAccountById(accountId: Long): AccountEntity?
     suspend fun updateAccountBalance(accountId: Long, delta: Long)
     suspend fun deleteAccount(account: AccountEntity)
 

@@ -90,6 +90,14 @@ class ExpenseRepositoryImpl @Inject constructor(
         accountDao.insertAccount(account)
     }
 
+    override suspend fun updateAccount(account: AccountEntity) = withContext(io) {
+        accountDao.updateAccount(account)
+    }
+
+    override suspend fun getAccountById(accountId: Long): AccountEntity? = withContext(io) {
+        accountDao.getAccountById(accountId)
+    }
+
     override suspend fun updateAccountBalance(accountId: Long, delta: Long) = withContext(io) {
         accountDao.updateBalance(accountId, delta)
     }
