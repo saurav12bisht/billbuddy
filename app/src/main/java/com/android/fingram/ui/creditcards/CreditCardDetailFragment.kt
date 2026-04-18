@@ -72,10 +72,10 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
                     binding.progressBar.isVisible = state.isLoading
 
                     state.card?.let { card ->
-                        binding.toolbar.title = "${card.bankName} â€¢â€¢â€¢â€¢${card.lastFourDigits}"
+                        binding.toolbar.title = "${card.bankName} ••••${card.lastFourDigits}"
                         binding.tvCardBankName.text = card.bankName.uppercase()
                         binding.tvCardName.text = card.cardName
-                        binding.tvCardNumber.text = "â€¢â€¢â€¢â€¢  â€¢â€¢â€¢â€¢  â€¢â€¢â€¢â€¢  ${card.lastFourDigits}"
+                        binding.tvCardNumber.text = "••••  ••••  ••••  ${card.lastFourDigits}"
                         binding.tvBillingDay.text = "Starts on ${card.billingDay}${getDayOfMonthSuffix(card.billingDay)}"
                         binding.tvDueDay.text = "Due on ${card.dueDay}${getDayOfMonthSuffix(card.dueDay)}"
                     }
