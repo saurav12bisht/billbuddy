@@ -1,4 +1,4 @@
-package com.android.fingram
+package com.mobile.fingram
 
 import android.app.Application
 import android.content.Context

@@ -225,12 +225,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="PREFERENCES"
+            android:visibility="gone"
             android:textColor="@color/text_secondary"
             android:textStyle="bold" />
 
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_marginTop="12dp"
             app:cardBackgroundColor="@color/surface"
             app:cardCornerRadius="28dp"
@@ -319,6 +321,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:visibility="gone"
             app:cardBackgroundColor="@color/dark_surface_card"
             app:cardCornerRadius="32dp"
             app:cardElevation="0dp">

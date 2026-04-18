@@ -11,16 +11,16 @@ plugins {
 }
 
 android {
-    namespace = "com.android.fingram"
+    namespace = "com.mobile.fingram"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.android.fingram"
+        applicationId = "com.mobile.fingram"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1"
-        testInstrumentationRunner = "com.android.fingram.CustomTestRunner"
+        testInstrumentationRunner = "com.mobile.fingram.CustomTestRunner"
     }
 
     signingConfigs {

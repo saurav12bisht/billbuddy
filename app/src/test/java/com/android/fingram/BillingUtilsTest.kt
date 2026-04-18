@@ -1,7 +1,7 @@
-package com.android.fingram
+package com.mobile.fingram
 
-import com.android.fingram.domain.model.CreditCard
-import com.android.fingram.ui.common.util.CreditCardBillingUtils
+import com.mobile.fingram.domain.model.CreditCard
+import com.mobile.fingram.ui.common.util.CreditCardBillingUtils
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.Calendar

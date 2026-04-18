@@ -1,4 +1,4 @@
-package com.android.fingram.ui.tests
+package com.mobile.fingram.ui.tests
 
 import android.content.Context
 import android.os.SystemClock
@@ -13,9 +13,9 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.android.fingram.MainActivity
-import com.android.fingram.R
-import com.android.fingram.data.preferences.AppPreferences
+import com.mobile.fingram.MainActivity
+import com.mobile.fingram.R
+import com.mobile.fingram.data.preferences.AppPreferences
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test

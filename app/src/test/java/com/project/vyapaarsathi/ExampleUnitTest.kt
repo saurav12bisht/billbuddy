@@ -1,4 +1,4 @@
-package com.android.fingram
+package com.mobile.fingram
 
 import org.junit.Test
 
