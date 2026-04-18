@@ -10,6 +10,7 @@ import com.mobile.fingram.data.local.entity.TransactionType
 import com.mobile.fingram.domain.model.CreditCard
 import com.mobile.fingram.domain.repository.CreditCardRepository
 import com.mobile.fingram.domain.repository.ExpenseRepository
+import com.mobile.fingram.data.preferences.AppPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddTransactionViewModel @Inject constructor(
     private val repository: ExpenseRepository,
-    private val creditCardRepository: CreditCardRepository
+    private val creditCardRepository: CreditCardRepository,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
     private val _type = MutableStateFlow("EXPENSE")
@@ -61,6 +63,9 @@ class AddTransactionViewModel @Inject constructor(
 
     private val _note = MutableStateFlow<String?>(null)
     val note: StateFlow<String?> = _note.asStateFlow()
+    
+    val currencySymbol: StateFlow<String> = appPreferences.currencySymbol
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "$")
 
     private var editingTransactionId: Long? = null
     private var originalTransaction: ExpenseEntity? = null

@@ -234,6 +234,12 @@ class AddTransactionBottomSheet : BottomSheetDialogFragment() {
                         }
                     }
                 }
+
+                launch {
+                    viewModel.currencySymbol.collect { symbol ->
+                        binding.tvCurrencySymbol.text = symbol
+                    }
+                }
             }
         }
     }
