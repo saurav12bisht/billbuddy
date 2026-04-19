@@ -10,6 +10,7 @@ import androidx.navigation.fragment.navArgs
 import com.mobile.fingram.databinding.FragmentAddEditCreditCardBinding
 import com.mobile.fingram.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.core.widget.doOnTextChanged
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -25,6 +26,7 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
         existingCardId = args.cardId
         setupToolbar()
         setupListeners()
+        setupLivePreview()
         bindState()
 
         if (existingCardId > 0L) {
@@ -43,6 +45,21 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
         binding.btnDelete.setOnClickListener { deleteCard() }
     }
 
+    private fun setupLivePreview() {
+        binding.etBankName.doOnTextChanged { text, _, _, _ ->
+            binding.tvLiveBankName.text = if (text.isNullOrBlank()) "BANK NAME" else text.toString().uppercase()
+        }
+
+        binding.etCardName.doOnTextChanged { text, _, _, _ ->
+            binding.tvLiveCardName.text = if (text.isNullOrBlank()) "CARDHOLDER NAME" else text.toString().uppercase()
+        }
+
+        binding.etLastFour.doOnTextChanged { text, _, _, _ ->
+            val lastFour = if (text.isNullOrBlank()) "1234" else text.toString().padEnd(4, '*')
+            binding.tvLiveCardNumber.text = "****  ****  ****  $lastFour"
+        }
+    }
+
     private fun loadCardData() {
         viewLifecycleOwner.lifecycleScope.launch {
             val card = viewModel.getCreditCard(existingCardId) ?: return@launch
@@ -51,6 +68,9 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
             binding.etLastFour.setText(card.lastFourDigits)
             binding.etBillingDay.setText(card.billingDay.toString())
             binding.etDueDay.setText(card.dueDay.toString())
+            
+            // The doOnTextChanged listeners will automatically update the preview
+            // when we set the text above.
         }
     }
 
