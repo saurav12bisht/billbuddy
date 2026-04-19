@@ -13,6 +13,7 @@ data class CreditCardEntity(
     val dueDay: Int,     // 1 to 31
     val creditLimitCents: Long? = null,
     val cardNetwork: String? = null,
+    val colorHex: String = "#B39DDB", // Default gradient start color approximation
     val isActive: Boolean = true,
     val createdAt: Long = System.currentTimeMillis()
 )

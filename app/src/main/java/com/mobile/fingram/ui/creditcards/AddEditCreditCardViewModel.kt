@@ -25,6 +25,13 @@ class AddEditCreditCardViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<AddEditCreditCardUiState>(AddEditCreditCardUiState.Idle)
     val uiState = _uiState.asStateFlow()
 
+    private val _selectedColorHex = MutableStateFlow("#B39DDB") // Default
+    val selectedColorHex = _selectedColorHex.asStateFlow()
+
+    fun updateColor(hex: String) {
+        _selectedColorHex.value = hex
+    }
+
     fun loadCreditCard(id: Long) = viewModelScope.launch {
         // Logic to load card if needed (can be done in fragment too)
     }
@@ -39,7 +46,8 @@ class AddEditCreditCardViewModel @Inject constructor(
         bankName: String,
         lastFour: String,
         billingDay: Int,
-        dueDay: Int
+        dueDay: Int,
+        colorHex: String
     ) = viewModelScope.launch {
         _uiState.value = AddEditCreditCardUiState.Loading
         try {
@@ -49,7 +57,8 @@ class AddEditCreditCardViewModel @Inject constructor(
                 bankName = bankName,
                 lastFourDigits = lastFour,
                 billingDay = billingDay,
-                dueDay = dueDay
+                dueDay = dueDay,
+                colorHex = colorHex
             )
             repository.saveCreditCard(card)
             _uiState.value = AddEditCreditCardUiState.Saved

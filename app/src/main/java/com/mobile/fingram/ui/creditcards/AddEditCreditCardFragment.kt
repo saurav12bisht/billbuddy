@@ -11,6 +11,8 @@ import com.mobile.fingram.databinding.FragmentAddEditCreditCardBinding
 import com.mobile.fingram.ui.common.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.core.widget.doOnTextChanged
+import android.graphics.Color
+import android.content.res.ColorStateList
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -27,6 +29,7 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
         setupToolbar()
         setupListeners()
         setupLivePreview()
+        setupColorSwatches()
         bindState()
 
         if (existingCardId > 0L) {
@@ -60,6 +63,23 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
         }
     }
 
+    private fun setupColorSwatches() {
+        val swatches = mapOf(
+            binding.colorPurple to "#B39DDB",
+            binding.colorBlue to "#90CAF9",
+            binding.colorGreen to "#A5D6A7",
+            binding.colorOrange to "#FFCC80",
+            binding.colorRed to "#EF9A9A",
+            binding.colorDark to "#546E7A"
+        )
+
+        swatches.forEach { (view, hex) ->
+            view.setOnClickListener {
+                viewModel.updateColor(hex)
+            }
+        }
+    }
+
     private fun loadCardData() {
         viewLifecycleOwner.lifecycleScope.launch {
             val card = viewModel.getCreditCard(existingCardId) ?: return@launch
@@ -68,6 +88,7 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
             binding.etLastFour.setText(card.lastFourDigits)
             binding.etBillingDay.setText(card.billingDay.toString())
             binding.etDueDay.setText(card.dueDay.toString())
+            viewModel.updateColor(card.colorHex)
             
             // The doOnTextChanged listeners will automatically update the preview
             // when we set the text above.
@@ -87,6 +108,20 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                         }
                         else -> Unit
+                    }
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.selectedColorHex.collect { hex ->
+                    try {
+                        val color = Color.parseColor(hex)
+                        // Apply to the ConstraintLayout background, overriding the gradient
+                        binding.clLivePreviewBg.backgroundTintList = ColorStateList.valueOf(color)
+                    } catch (e: Exception) {
+                        // fallback
                     }
                 }
             }
@@ -111,7 +146,8 @@ class AddEditCreditCardFragment : BaseFragment<FragmentAddEditCreditCardBinding>
             bankName = bank,
             lastFour = lastFour,
             billingDay = billingDay,
-            dueDay = dueDay
+            dueDay = dueDay,
+            colorHex = viewModel.selectedColorHex.value
         )
     }
 

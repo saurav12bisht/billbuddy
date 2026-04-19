@@ -12,6 +12,7 @@ data class CreditCard(
     val dueDay: Int,
     val creditLimitCents: Long? = null,
     val cardNetwork: String? = null,
+    val colorHex: String = "#B39DDB",
     val isActive: Boolean = true,
     val createdAt: Long = System.currentTimeMillis()
 )
@@ -48,6 +49,7 @@ fun CreditCardEntity.toDomain() = CreditCard(
     dueDay = dueDay,
     creditLimitCents = creditLimitCents,
     cardNetwork = cardNetwork,
+    colorHex = colorHex,
     isActive = isActive,
     createdAt = createdAt
 )
@@ -61,6 +63,7 @@ fun CreditCard.toEntity() = CreditCardEntity(
     dueDay = dueDay,
     creditLimitCents = creditLimitCents,
     cardNetwork = cardNetwork,
+    colorHex = colorHex,
     isActive = isActive,
     createdAt = createdAt
 )

@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.mobile.fingram.R
 import com.mobile.fingram.databinding.FragmentCreditCardDetailBinding
 import com.mobile.fingram.domain.model.CreditCardBill
+import android.graphics.Color
+import android.content.res.ColorStateList
 import com.mobile.fingram.ui.common.BaseFragment
 import com.mobile.fingram.ui.common.util.CurrencyFormatter
 import com.mobile.fingram.ui.common.util.PreferenceManager
@@ -78,6 +80,13 @@ class CreditCardDetailFragment : BaseFragment<FragmentCreditCardDetailBinding>(
                         binding.tvCardNumber.text = "••••  ••••  ••••  ${card.lastFourDigits}"
                         binding.tvBillingDay.text = "Starts on ${card.billingDay}${getDayOfMonthSuffix(card.billingDay)}"
                         binding.tvDueDay.text = "Due on ${card.dueDay}${getDayOfMonthSuffix(card.dueDay)}"
+
+                        try {
+                            val color = Color.parseColor(card.colorHex)
+                            binding.rlCardBg.backgroundTintList = ColorStateList.valueOf(color)
+                        } catch (e: Exception) {
+                            // Ignored, defaults to XML defined gradient/color
+                        }
                     }
 
                     binding.tvCurrentCycleSpend.text = CurrencyFormatter.formatUsdCents(state.currentCycleSpend)

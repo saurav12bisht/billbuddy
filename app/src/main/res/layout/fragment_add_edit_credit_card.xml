@@ -36,6 +36,7 @@
 
             <!-- Card Visual Mockup -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cvLivePreview"
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:layout_marginBottom="24dp"
@@ -43,6 +44,7 @@
                 app:cardElevation="8dp"
                 app:strokeWidth="0dp">
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clLivePreviewBg"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_credit_card_gradient"
@@ -87,6 +89,80 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Card Color"
+                android:fontFamily="sans-serif-medium"
+                android:layout_marginBottom="8dp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:id="@+id/llColorSwatches"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <!-- Swatches will be generated programmatically or defined here -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/colorPurple"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardBackgroundColor="#B39DDB"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/colorBlue"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardBackgroundColor="#90CAF9"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/colorGreen"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardBackgroundColor="#A5D6A7"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/colorOrange"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardBackgroundColor="#FFCC80"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/colorRed"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="12dp"
+                        app:cardBackgroundColor="#EF9A9A"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/colorDark"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        app:cardBackgroundColor="#546E7A"
+                        app:cardCornerRadius="24dp"
+                        app:strokeWidth="0dp" />
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCardName"

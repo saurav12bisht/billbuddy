@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.mobile.fingram.databinding.ItemCreditCardBinding
 import com.mobile.fingram.ui.common.util.CurrencyFormatter
+import android.graphics.Color
+import android.content.res.ColorStateList
 
 class CreditCardAdapter(
     private val onCardClick: (CreditCardUiModel) -> Unit,
@@ -29,6 +31,14 @@ class CreditCardAdapter(
             tvCardNumber.text = "**** **** **** ${card.lastFourDigits}"
             tvCycleTotal.text = CurrencyFormatter.formatUsdCents(uiModel.currentCycleSpendCents)
             tvDueDay.text = "Due: ${formatOrdinal(uiModel.nextDueDay)}"
+
+            try {
+                val color = Color.parseColor(card.colorHex)
+                clCardBg.backgroundTintList = ColorStateList.valueOf(color)
+            } catch (e: Exception) {
+                // Ignore, keep default
+            }
+
             root.setOnClickListener { onCardClick(uiModel) }
             btnEdit.setOnClickListener { onEditClick(uiModel) }
             btnDelete.setOnClickListener { onDeleteClick(uiModel) }

@@ -358,6 +358,12 @@ class WalletAdapter(
             b.tvWalletCardNumber.text  = "•••• ${card.lastFourDigits}"
             b.tvWalletOutstanding.text = CurrencyFormatter.formatUsdCents(uiModel.outstandingAmountCents)
             b.tvWalletCycleSpend.text  = "Cycle spend: ${CurrencyFormatter.formatUsdCents(uiModel.currentCycleSpendCents)}"
+            try {
+                val color = Color.parseColor(card.colorHex)
+                b.llCardBg.backgroundTintList = android.content.res.ColorStateList.valueOf(color)
+            } catch (e: Exception) {
+                // Ignore, keep default
+            }
             b.root.setOnClickListener { onCardClick(uiModel) }
         }
     }

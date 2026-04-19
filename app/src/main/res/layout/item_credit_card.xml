@@ -10,6 +10,7 @@
     app:strokeWidth="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/clCardBg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="20dp"
